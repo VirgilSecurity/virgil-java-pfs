@@ -297,7 +297,7 @@ public class SecureChatTest extends BaseIT {
 		aliceChatContext.setSessionTtl(5);
 		aliceChat.rotateKeys(this.numberOfCards);
 
-		aliceChatContext.setSessionTtl(5);
+		bobChatContext.setSessionTtl(5);
 		bobChat.rotateKeys(this.numberOfCards);
 
 		SecureSession aliceSession = aliceChat.activeSession(bobCard.getId());
@@ -330,7 +330,7 @@ public class SecureChatTest extends BaseIT {
 		SecureSession outdatedAliceSession = aliceChat.activeSession(bobCard.getId());
 		assertNull(outdatedAliceSession);
 
-		SecureSession outdatedBobSession = bobChat.activeSession(bobCard.getId());
+		SecureSession outdatedBobSession = bobChat.activeSession(aliceCard.getId());
 		assertNull(outdatedBobSession);
 
 		aliceChat.rotateKeys(numberOfCards);
