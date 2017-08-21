@@ -60,8 +60,8 @@ public class SecureChatContext {
      * Create new instance of {@link SecureChatContext}.
      */
     public SecureChatContext() {
-        longTermKeysTtl = 24 * 60 * 60; // One day
-        sessionTtl = 7 * 24 * 60 * 60; // One week
+        longTermKeysTtl = 7 * 24 * 60 * 60; // One week
+        sessionTtl = 24 * 60 * 60; // One day
     }
 
     public SecureChatContext(CardModel myIdentityCard, PrivateKey myPrivateKey, Crypto crypto,
