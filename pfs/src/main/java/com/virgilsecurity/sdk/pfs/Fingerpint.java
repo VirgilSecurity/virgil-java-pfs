@@ -61,7 +61,11 @@ public class Fingerpint {
     public static String calculateFingerprint(List<String> cardsIds) {
         List<String> sortedCardsIds = new ArrayList<>();
         if (cardsIds != null) {
-            sortedCardsIds.addAll(cardsIds);
+        	for (String cardId : cardsIds) {
+        		if (cardId != null) {
+        			sortedCardsIds.add(cardId);
+        		}
+        	}
         }
         Collections.sort(sortedCardsIds);
 

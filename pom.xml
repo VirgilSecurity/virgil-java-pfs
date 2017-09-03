@@ -1,11 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-    <groupId>com.virgilsecurity</groupId>
-	<artifactId>pfs</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+	<groupId>com.virgilsecurity</groupId>
+	<artifactId>pfs-parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 	<name>Virgil PFS</name>
-    <description>
+	<description>
 		Virgil is a stack of security libraries (ECIES with Crypto Agility wrapped in Virgil Cryptogram) and all the necessary infrastructure to enable seamless, end-to-end encryption for any application, platform or device.
 		Learn about Virgil Java/Android SDK https://virgilsecurity.com/api-docs/java-android/quickstart
 	</description>
@@ -20,8 +21,8 @@
 			<url>https://github.com/VirgilSecurity/virgil-java-pfs/blob/master/LICENSE.txt</url>
 		</license>
 	</licenses>
-    
-    <distributionManagement>
+
+	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -40,32 +41,55 @@
 		</developer>
 	</developers>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.virgilsecurity.sdk</groupId>
-			<artifactId>sdk</artifactId>
-			<version>4.5.0-SNAPSHOT</version>
-		</dependency>
-		<!-- Tests -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-            <version>2.8.47</version>
-            <scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-            <version>2.6</version>
-            <scope>test</scope>
-		</dependency>
-	</dependencies>
+	<properties>
+		<virgil-sdk.version>4.5.0-SNAPSHOT</virgil-sdk.version>
+		<android.version>4.1.1.4</android.version>
+	</properties>
+
+	<modules>
+		<module>pfs</module>
+		<module>pfs-android</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.virgilsecurity.sdk</groupId>
+				<artifactId>sdk</artifactId>
+				<version>${virgil-sdk.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.virgilsecurity.sdk</groupId>
+				<artifactId>sdk-android</artifactId>
+				<version>${virgil-sdk.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.android</groupId>
+				<artifactId>android</artifactId>
+				<version>${android.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<!-- Tests -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>2.8.47</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.6</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<pluginManagement>
