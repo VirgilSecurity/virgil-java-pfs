@@ -46,6 +46,7 @@ public class InitiationMessage {
     @SerializedName("responder_ltc_id")
     private String responderLtcId;
 
+    @Optional
     @SerializedName("responder_otc_id")
     private String responderOtcId;
 

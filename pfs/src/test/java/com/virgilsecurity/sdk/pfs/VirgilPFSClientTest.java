@@ -124,7 +124,6 @@ public class VirgilPFSClientTest extends BaseIT {
         OtcCountResponse otcCount = pfsClient.getOtcCount(aliceCard.getId());
         assertNotNull(otcCount);
         assertEquals(0, otcCount.getActive());
-        assertEquals(0, otcCount.getExhausted());
 
         // Create long time card
         KeyPair ltKeyPair = crypto.generateKeys();
@@ -222,7 +221,6 @@ public class VirgilPFSClientTest extends BaseIT {
         OtcCountResponse otcCount = pfsClient.getOtcCount(aliceCard.getId());
         assertNotNull(otcCount);
         assertEquals(0, otcCount.getActive());
-        assertEquals(0, otcCount.getExhausted());
 
         // Create long time card request
         KeyPair ltKeyPair = crypto.generateKeys();

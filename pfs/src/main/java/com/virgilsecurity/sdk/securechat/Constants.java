@@ -34,13 +34,32 @@ package com.virgilsecurity.sdk.securechat;
  *
  */
 public interface Constants {
-    
-    public interface Errors {
-        int LTC_VALIDATION_FAILED   = 0x00001;
-        int OTC_VALIDATION_FAILED   = 0x00002;
-        int CORRUPTED_SAVED_SESSION = 0x00003;
-        int ACTIVE_SESSION_EXISTS   = 0x00004;
-        int REMOVE_EXPIRES_SESSION  = 0x00005;
-    }
+
+	public interface Errors {
+
+		public interface SecureChat {
+			int OBTAINING_RECIPIENT_CARDS_SET = 0x00001;
+			int RECIPIENT_SET_EMPTY = 0x00002;
+			int UNKNOWN_MESSAGE_STRUCTURE = 0x00003;
+		}
+
+		public interface SessionManager {
+			int IMPORTING_INITIATOR_PUBLIC_KEY_FROM_IDENTITY_CARD = 0x00001;
+			int VALIDATING_INITIATOR_SIGNATURE = 0x00002;
+			int INITIATOR_IDENTITY_CARD_ID_DOESNT_MATCH = 0x00003;
+			int GET_RESPONDER_LT = 0x00004;
+			int GET_RESPONDER_OT = 0x00005;
+			int ADD_VERIFIER = 0x00006;
+			int LONG_TERM_CARD_VALIDATION = 0x00007;
+			int ONE_TIME_CARD_VALIDATION = 0x00008;
+			int REMOVING_OT_KEY = 0x00009;
+			int SESSION_NOT_FOUND = 0x00010;
+		}
+
+		int OTC_VALIDATION_FAILED = 0x00002;
+		int CORRUPTED_SAVED_SESSION = 0x00003;
+		int ACTIVE_SESSION_EXISTS = 0x00004;
+		int REMOVE_EXPIRES_SESSION = 0x00005;
+	}
 
 }

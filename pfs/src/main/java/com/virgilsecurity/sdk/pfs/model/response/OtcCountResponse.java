@@ -40,9 +40,6 @@ public class OtcCountResponse {
     @SerializedName("active")
     private int active;
 
-    @SerializedName("exhausted")
-    private int exhausted;
-
     /**
      * @return the active
      */
@@ -56,21 +53,6 @@ public class OtcCountResponse {
      */
     public void setActive(int active) {
         this.active = active;
-    }
-
-    /**
-     * @return the exhausted
-     */
-    public int getExhausted() {
-        return exhausted;
-    }
-
-    /**
-     * @param exhausted
-     *            the exhausted to set
-     */
-    public void setExhausted(int exhausted) {
-        this.exhausted = exhausted;
     }
 
 }

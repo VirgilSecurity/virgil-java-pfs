@@ -30,6 +30,7 @@
 package com.virgilsecurity.sdk.securechat.model;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 
 import com.google.gson.annotations.SerializedName;
@@ -40,100 +41,170 @@ import com.google.gson.annotations.SerializedName;
  */
 public class SessionState implements Serializable {
 
-    private static final long serialVersionUID = 6554793364131958950L;
+	private static final long serialVersionUID = 6554793364131958950L;
 
-    @SerializedName("creation_date")
-    private Date creationDate;
+	@SerializedName("creation_date")
+	private Date creationDate;
 
-    @SerializedName("expiration_date")
-    private Date expirationDate;
+	@SerializedName("expiration_date")
+	private Date expirationDate;
 
-    @SerializedName("session_id")
-    private byte[] sessionId;
+	@SerializedName("session_id")
+	private byte[] sessionId;
 
-    @SerializedName("additional_data")
-    private byte[] additionalData;
+	@SerializedName("additional_data")
+	private byte[] additionalData;
 
-    /**
-     * Create new instance of {@link SessionState}.
-     */
-    public SessionState() {
-    }
+	/**
+	 * Create new instance of {@link SessionState}.
+	 */
+	public SessionState() {
+	}
 
-    /**
-     * Create new instance of {@link SessionState}.
-     * 
-     * @param sessionId
-     * @param creationDate
-     * @param expirationDate
-     * @param additionalData
-     * 
-     */
-    public SessionState(byte[] sessionId, Date creationDate, Date expirationDate, byte[] additionalData) {
-        this.creationDate = creationDate;
-        this.expirationDate = expirationDate;
-        this.sessionId = sessionId;
-        this.additionalData = additionalData;
-    }
+	/**
+	 * Create new instance of {@link SessionState}.
+	 * 
+	 * @param sessionId
+	 * @param creationDate
+	 * @param expirationDate
+	 * @param additionalData
+	 * 
+	 */
+	public SessionState(byte[] sessionId, Date creationDate, Date expirationDate, byte[] additionalData) {
+		this.creationDate = creationDate;
+		this.expirationDate = expirationDate;
+		this.sessionId = sessionId;
+		this.additionalData = additionalData;
+	}
 
-    /**
-     * @return the creationDate
-     */
-    public Date getCreationDate() {
-        return creationDate;
-    }
+	/**
+	 * Checks if session already expired.
+	 * 
+	 * @return {@code true} if session expired at the moment.
+	 */
+	public boolean isExpired() {
+		return isExpired(new Date());
+	}
 
-    /**
-     * @param creationDate
-     *            the creationDate to set
-     */
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
+	/**
+	 * Checks if session expired to the date.
+	 * 
+	 * @param date
+	 *            the date.
+	 * @return {@code true} if session expired to the date {@code date}.
+	 */
+	public boolean isExpired(Date date) {
+		if (this.expirationDate == null) {
+			return false;
+		}
+		return this.expirationDate.before(date);
+	}
 
-    /**
-     * @return the expirationDate
-     */
-    public Date getExpirationDate() {
-        return expirationDate;
-    }
+	/**
+	 * @return the creationDate
+	 */
+	public Date getCreationDate() {
+		return creationDate;
+	}
 
-    /**
-     * @param expirationDate
-     *            the expirationDate to set
-     */
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = expirationDate;
-    }
+	/**
+	 * @param creationDate
+	 *            the creationDate to set
+	 */
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
 
-    /**
-     * @return the sessionId
-     */
-    public byte[] getSessionId() {
-        return sessionId;
-    }
+	/**
+	 * @return the expirationDate
+	 */
+	public Date getExpirationDate() {
+		return expirationDate;
+	}
 
-    /**
-     * @param sessionId
-     *            the sessionId to set
-     */
-    public void setSessionId(byte[] sessionId) {
-        this.sessionId = sessionId;
-    }
+	/**
+	 * @param expirationDate
+	 *            the expirationDate to set
+	 */
+	public void setExpirationDate(Date expirationDate) {
+		this.expirationDate = expirationDate;
+	}
 
-    /**
-     * @return the additionalData
-     */
-    public byte[] getAdditionalData() {
-        return additionalData;
-    }
+	/**
+	 * @return the sessionId
+	 */
+	public byte[] getSessionId() {
+		return sessionId;
+	}
 
-    /**
-     * @param additionalData
-     *            the additionalData to set
-     */
-    public void setAdditionalData(byte[] additionalData) {
-        this.additionalData = additionalData;
-    }
+	/**
+	 * @param sessionId
+	 *            the sessionId to set
+	 */
+	public void setSessionId(byte[] sessionId) {
+		this.sessionId = sessionId;
+	}
+
+	/**
+	 * @return the additionalData
+	 */
+	public byte[] getAdditionalData() {
+		return additionalData;
+	}
+
+	/**
+	 * @param additionalData
+	 *            the additionalData to set
+	 */
+	public void setAdditionalData(byte[] additionalData) {
+		this.additionalData = additionalData;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(additionalData);
+		result = prime * result + ((creationDate == null) ? 0 : creationDate.hashCode());
+		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
+		result = prime * result + Arrays.hashCode(sessionId);
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SessionState other = (SessionState) obj;
+		if (!Arrays.equals(additionalData, other.additionalData))
+			return false;
+		if (creationDate == null) {
+			if (other.creationDate != null)
+				return false;
+		} else if (!creationDate.equals(other.creationDate))
+			return false;
+		if (expirationDate == null) {
+			if (other.expirationDate != null)
+				return false;
+		} else if (!expirationDate.equals(other.expirationDate))
+			return false;
+		if (!Arrays.equals(sessionId, other.sessionId))
+			return false;
+		return true;
+	}
 
 }
