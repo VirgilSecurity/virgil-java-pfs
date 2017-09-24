@@ -2,9 +2,9 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.virgilsecurity</groupId>
-		<artifactId>pfs-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<groupId>com.virgilsecurity.pfs</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0</version>
 	</parent>
 	<artifactId>pfs</artifactId>
 	<name>Virgil PFS</name>
@@ -35,6 +35,12 @@
 	</dependencies>
 
 	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+		</plugins>
 	</build>
 
 	<profiles>
@@ -42,10 +48,6 @@
 			<id>release</id>
 			<build>
 				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-source-plugin</artifactId>
-					</plugin>
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>

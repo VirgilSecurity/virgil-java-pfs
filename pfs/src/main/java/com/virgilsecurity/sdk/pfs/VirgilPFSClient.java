@@ -56,139 +56,169 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
  */
 public class VirgilPFSClient extends ClientBase {
 
-    /**
-     * Create a new instance of {@code VirgilPFSClient}
-     *
-     * @param context
-     *            the Virgil client context.
-     */
-    public VirgilPFSClient(VirgilPFSClientContext context) {
-        super(context);
-    }
+	/**
+	 * Create a new instance of {@code VirgilPFSClient}
+	 *
+	 * @param context
+	 *            the Virgil client context.
+	 */
+	public VirgilPFSClient(VirgilPFSClientContext context) {
+		super(context);
+	}
 
-    public BootstrapCardsResponse bootstrapCardsSet(String recipientId, CreateEphemeralCardRequest longTimeCardRequest,
-            List<CreateEphemeralCardRequest> oneTimeCardRequests) throws VirgilServiceException {
-        try {
-            URL url = new URL(getContext().getEphemeralServiceURL(), String.format("/v1/recipient/%s", recipientId));
+	/**
+	 * Create a new cards set.
+	 * 
+	 * @param recipientId
+	 *            the recipient identifier.
+	 * @param longTimeCardRequest
+	 *            the request for creating long-time card.
+	 * @param oneTimeCardRequests
+	 *            requests for creating long-time cards.
+	 * @return a created cards set.
+	 * @throws VirgilServiceException
+	 */
+	public BootstrapCardsResponse bootstrapCardsSet(String recipientId, CreateEphemeralCardRequest longTimeCardRequest,
+			List<CreateEphemeralCardRequest> oneTimeCardRequests) throws VirgilServiceException {
+		try {
+			URL url = new URL(getContext().getEphemeralServiceURL(), String.format("/v1/recipient/%s", recipientId));
 
-            List<SignableRequestModel> otcRequests = new ArrayList<>();
-            for (CreateEphemeralCardRequest request : oneTimeCardRequests) {
-                otcRequests.add(request.getRequestModel());
-            }
-            BootstrapCardsRequest requestModel = new BootstrapCardsRequest();
-            requestModel.setLongTimeCard(longTimeCardRequest.getRequestModel());
-            requestModel.setOneTimeCards(otcRequests);
+			List<SignableRequestModel> otcRequests = new ArrayList<>();
+			for (CreateEphemeralCardRequest request : oneTimeCardRequests) {
+				otcRequests.add(request.getRequestModel());
+			}
+			BootstrapCardsRequest requestModel = new BootstrapCardsRequest();
+			requestModel.setLongTimeCard(longTimeCardRequest.getRequestModel());
+			requestModel.setOneTimeCards(otcRequests);
 
-            String body = ConvertionUtils.getGson().toJson(requestModel);
+			String body = ConvertionUtils.getGson().toJson(requestModel);
 
-            BootstrapCardsResponse responseModel = execute(url, "PUT",
-                    new ByteArrayInputStream(ConvertionUtils.toBytes(body)), BootstrapCardsResponse.class);
+			BootstrapCardsResponse responseModel = execute(url, "PUT",
+					new ByteArrayInputStream(ConvertionUtils.toBytes(body)), BootstrapCardsResponse.class);
 
-            return responseModel;
-        } catch (VirgilServiceException e) {
-            throw new VirgilPFSServiceException(e.getErrorCode(), e);
-        } catch (Exception e) {
-            throw new VirgilPFSServiceException(e);
-        }
-    }
+			return responseModel;
+		} catch (VirgilServiceException e) {
+			throw new VirgilPFSServiceException(e.getErrorCode(), e);
+		} catch (Exception e) {
+			throw new VirgilPFSServiceException(e);
+		}
+	}
 
-    public CardModel createLongTermCard(String recipientId, CreateEphemeralCardRequest longTermCardRequest) {
-        try {
-            URL url = new URL(getContext().getEphemeralServiceURL(),
-                    String.format("/v1/recipient/%s/actions/push-ltc", recipientId));
+	/**
+	 * Create a new long-time card.
+	 * 
+	 * @param recipientId
+	 *            the recipient identifier.
+	 * @param longTermCardRequest
+	 *            the request for creating long-time card.
+	 * @return created long-time card.
+	 */
+	public CardModel createLongTermCard(String recipientId, CreateEphemeralCardRequest longTermCardRequest) {
+		try {
+			URL url = new URL(getContext().getEphemeralServiceURL(),
+					String.format("/v1/recipient/%s/actions/push-ltc", recipientId));
 
-            String body = ConvertionUtils.getGson().toJson(longTermCardRequest.getRequestModel());
+			String body = ConvertionUtils.getGson().toJson(longTermCardRequest.getRequestModel());
 
-            CardModel responseModel = execute(url, "POST", new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
-                    CardModel.class);
+			CardModel responseModel = execute(url, "POST", new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
+					CardModel.class);
 
-            return responseModel;
-        } catch (VirgilServiceException e) {
-            throw new VirgilPFSServiceException(e.getErrorCode(), e);
-        } catch (Exception e) {
-            throw new VirgilPFSServiceException(e);
-        }
-    }
+			return responseModel;
+		} catch (VirgilServiceException e) {
+			throw new VirgilPFSServiceException(e.getErrorCode(), e);
+		} catch (Exception e) {
+			throw new VirgilPFSServiceException(e);
+		}
+	}
 
-    public List<CardModel> createOneTimeCards(String recipientId,
-            List<CreateEphemeralCardRequest> oneTimeCardsRequest) {
-        try {
-            URL url = new URL(getContext().getEphemeralServiceURL(),
-                    String.format("/v1/recipient/%s/actions/push-otcs", recipientId));
+	/**
+	 * Create a new one-time cards set.
+	 * 
+	 * @param recipientId
+	 *            the recipient identifier.
+	 * @param oneTimeCardsRequest
+	 *            requests for creating long-time cards.
+	 * @return created one-time cards as a list.
+	 */
+	public List<CardModel> createOneTimeCards(String recipientId,
+			List<CreateEphemeralCardRequest> oneTimeCardsRequest) {
+		try {
+			URL url = new URL(getContext().getEphemeralServiceURL(),
+					String.format("/v1/recipient/%s/actions/push-otcs", recipientId));
 
-            List<SignableRequestModel> request = new ArrayList<>();
-            for (CreateEphemeralCardRequest oneTimeCardRequest : oneTimeCardsRequest) {
-                request.add(oneTimeCardRequest.getRequestModel());
-            }
-            String body = ConvertionUtils.getGson().toJson(request);
+			List<SignableRequestModel> request = new ArrayList<>();
+			for (CreateEphemeralCardRequest oneTimeCardRequest : oneTimeCardsRequest) {
+				request.add(oneTimeCardRequest.getRequestModel());
+			}
+			String body = ConvertionUtils.getGson().toJson(request);
 
-            CardModel[] responseModel = execute(url, "POST", new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
-                    CardModel[].class);
+			CardModel[] responseModel = execute(url, "POST", new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
+					CardModel[].class);
 
-            return Arrays.asList(responseModel);
-        } catch (VirgilServiceException e) {
-            throw new VirgilPFSServiceException(e.getErrorCode(), e);
-        } catch (Exception e) {
-            throw new VirgilPFSServiceException(e);
-        }
-    }
+			return Arrays.asList(responseModel);
+		} catch (VirgilServiceException e) {
+			throw new VirgilPFSServiceException(e.getErrorCode(), e);
+		} catch (Exception e) {
+			throw new VirgilPFSServiceException(e);
+		}
+	}
 
-    public OtcCountResponse getOtcCount(String recipientId) {
-        try {
-            URL url = new URL(getContext().getEphemeralServiceURL(),
-                    String.format("/v1/recipient/%s/actions/count-otcs", recipientId));
+	public OtcCountResponse getOtcCount(String recipientId) {
+		try {
+			URL url = new URL(getContext().getEphemeralServiceURL(),
+					String.format("/v1/recipient/%s/actions/count-otcs", recipientId));
 
-            OtcCountResponse responseModel = execute(url, "POST", null, OtcCountResponse.class);
+			OtcCountResponse responseModel = execute(url, "POST", null, OtcCountResponse.class);
 
-            return responseModel;
-        } catch (VirgilServiceException e) {
-            throw new VirgilPFSServiceException(e.getErrorCode(), e);
-        } catch (Exception e) {
-            throw new VirgilPFSServiceException(e);
-        }
-    }
+			return responseModel;
+		} catch (VirgilServiceException e) {
+			throw new VirgilPFSServiceException(e.getErrorCode(), e);
+		} catch (Exception e) {
+			throw new VirgilPFSServiceException(e);
+		}
+	}
 
-    public List<RecipientCardsSet> getRecipientCardsSet(String cardsIds) {
-        return getRecipientCardsSet(Arrays.asList(cardsIds));
-    }
-    
-    public List<RecipientCardsSet> getRecipientCardsSet(List<String> cardsIds) {
-        try {
-            URL url = new URL(getContext().getEphemeralServiceURL(), "/v1/recipient/actions/search-by-ids");
+	public List<RecipientCardsSet> getRecipientCardsSet(String cardsIds) {
+		return getRecipientCardsSet(Arrays.asList(cardsIds));
+	}
 
-            String body = ConvertionUtils.getGson().toJson(new CredentialsRequest(cardsIds));
+	public List<RecipientCardsSet> getRecipientCardsSet(List<String> cardsIds) {
+		try {
+			URL url = new URL(getContext().getEphemeralServiceURL(), "/v1/recipient/actions/search-by-ids");
 
-            RecipientCardsSet[] responseModel = execute(url, "POST",
-                    new ByteArrayInputStream(ConvertionUtils.toBytes(body)), RecipientCardsSet[].class);
+			String body = ConvertionUtils.getGson().toJson(new CredentialsRequest(cardsIds));
 
-            return Arrays.asList(responseModel);
-        } catch (VirgilServiceException e) {
-            throw new VirgilPFSServiceException(e.getErrorCode(), e);
-        } catch (Exception e) {
-            throw new VirgilPFSServiceException(e);
-        }
-    }
+			RecipientCardsSet[] responseModel = execute(url, "POST",
+					new ByteArrayInputStream(ConvertionUtils.toBytes(body)), RecipientCardsSet[].class);
 
-    public List<String> validateOneTimeCards(String recipientId, List<String> cardsIds) {
-        try {
-            URL url = new URL(getContext().getEphemeralServiceURL(),
-                    String.format("/v1/recipient/%s/actions/validate-otcs", recipientId));
+			return Arrays.asList(responseModel);
+		} catch (VirgilServiceException e) {
+			throw new VirgilPFSServiceException(e.getErrorCode(), e);
+		} catch (Exception e) {
+			throw new VirgilPFSServiceException(e);
+		}
+	}
 
-            String body = ConvertionUtils.getGson().toJson(new ValidateOTCRequest(cardsIds));
+	public List<String> validateOneTimeCards(String recipientId, List<String> cardsIds) {
+		try {
+			URL url = new URL(getContext().getEphemeralServiceURL(),
+					String.format("/v1/recipient/%s/actions/validate-otcs", recipientId));
 
-            ValidateOTCResponse responseModel = execute(url, "POST",
-                    new ByteArrayInputStream(ConvertionUtils.toBytes(body)), ValidateOTCResponse.class);
+			String body = ConvertionUtils.getGson().toJson(new ValidateOTCRequest(cardsIds));
 
-            return responseModel.getCardsIds();
-        } catch (VirgilServiceException e) {
-            throw new VirgilPFSServiceException(e.getErrorCode(), e);
-        } catch (Exception e) {
-            throw new VirgilPFSServiceException(e);
-        }
-    }
+			ValidateOTCResponse responseModel = execute(url, "POST",
+					new ByteArrayInputStream(ConvertionUtils.toBytes(body)), ValidateOTCResponse.class);
 
-    private VirgilPFSClientContext getContext() {
-        return (VirgilPFSClientContext) context;
-    }
+			return responseModel.getCardsIds();
+		} catch (VirgilServiceException e) {
+			throw new VirgilPFSServiceException(e.getErrorCode(), e);
+		} catch (Exception e) {
+			throw new VirgilPFSServiceException(e);
+		}
+	}
+
+	private VirgilPFSClientContext getContext() {
+		return (VirgilPFSClientContext) context;
+	}
 
 }

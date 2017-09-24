@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.virgilsecurity</groupId>
-	<artifactId>pfs-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<groupId>com.virgilsecurity.pfs</groupId>
+	<artifactId>parent</artifactId>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
-	<name>Virgil PFS</name>
+	<name>Virgil PFS - Parent</name>
 	<description>
 		Virgil is a stack of security libraries (ECIES with Crypto Agility wrapped in Virgil Cryptogram) and all the necessary infrastructure to enable seamless, end-to-end encryption for any application, platform or device.
 		Learn about Virgil Java/Android SDK https://virgilsecurity.com/api-docs/java-android/quickstart
@@ -42,7 +42,7 @@
 	</developers>
 
 	<properties>
-		<virgil-sdk.version>4.5.0-SNAPSHOT</virgil-sdk.version>
+		<virgil-sdk.version>4.5.0</virgil-sdk.version>
 		<android.version>4.1.1.4</android.version>
 	</properties>
 
@@ -61,6 +61,7 @@
 			<dependency>
 				<groupId>com.virgilsecurity.sdk</groupId>
 				<artifactId>sdk-android</artifactId>
+				<type>aar</type>
 				<version>${virgil-sdk.version}</version>
 			</dependency>
 			<dependency>
@@ -160,6 +161,16 @@
 						<serverId>ossrh</serverId>
 						<nexusUrl>https://oss.sonatype.org/</nexusUrl>
 						<autoReleaseAfterClose>true</autoReleaseAfterClose>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.simpligility.maven.plugins</groupId>
+					<artifactId>android-maven-plugin</artifactId>
+					<version>4.3.0</version>
+					<extensions>true</extensions>
+					<configuration>
+						<ndkArchitectures>arm64-v8a armeabi armeabi-v7a mips mips64 x86
+							x86_64</ndkArchitectures>
 					</configuration>
 				</plugin>
 			</plugins>
