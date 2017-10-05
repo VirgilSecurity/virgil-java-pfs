@@ -78,7 +78,7 @@ public class EphemeralCardValidator {
             }
             byte[] signature = card.getMeta().getSignatures().get(verifier.getKey());
             try {
-                this.crypto.verify(fingerprint.getValue(), signature, verifier.getValue());
+                return this.crypto.verify(fingerprint.getValue(), signature, verifier.getValue());
             } catch (Exception e) {
                 return false;
             }
