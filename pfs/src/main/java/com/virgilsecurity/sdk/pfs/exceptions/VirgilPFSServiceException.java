@@ -32,56 +32,63 @@ package com.virgilsecurity.sdk.pfs.exceptions;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 
 /**
+ * This exception could be thrown while working with Virgil PFS service.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class VirgilPFSServiceException extends VirgilServiceException {
 
-    private static final long serialVersionUID = -1631751276395713658L;
+	private static final long serialVersionUID = -1631751276395713658L;
 
-    /**
-     * Create new instance of {@link VirgilPFSServiceException}.
-     */
-    public VirgilPFSServiceException() {
-        super();
-    }
+	/**
+	 * Create new instance of {@link VirgilPFSServiceException}.
+	 */
+	public VirgilPFSServiceException() {
+		super();
+	}
 
-    /**
-     * Create new instance of {@link VirgilPFSServiceException}.
-     * 
-     * @param cause
-     */
-    public VirgilPFSServiceException(Exception cause) {
-        super(cause);
-    }
+	/**
+	 * Create new instance of {@link VirgilPFSServiceException}.
+	 * 
+	 * @param cause
+	 *            the cause.
+	 */
+	public VirgilPFSServiceException(Exception cause) {
+		super(cause);
+	}
 
-    /**
-     * Create new instance of {@link VirgilPFSServiceException}.
-     * 
-     * @param code
-     * @param cause
-     */
-    public VirgilPFSServiceException(int code, Exception cause) {
-        super(code, cause);
-    }
+	/**
+	 * Create new instance of {@link VirgilPFSServiceException}.
+	 * 
+	 * @param code
+	 *            the error code.
+	 */
+	public VirgilPFSServiceException(int code) {
+		super(code);
+	}
 
-    /**
-     * Create new instance of {@link VirgilPFSServiceException}.
-     * 
-     * @param code
-     */
-    public VirgilPFSServiceException(int code) {
-        super(code);
-    }
+	/**
+	 * Create new instance of {@link VirgilPFSServiceException}.
+	 * 
+	 * @param code
+	 *            the error code.
+	 * @param cause
+	 *            the cause.
+	 */
+	public VirgilPFSServiceException(int code, Exception cause) {
+		super(code, cause);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException#getMessageBundleName()
-     */
-    @Override
-    protected String getMessageBundleName() {
-        return "PFSMessages";
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException#
+	 * getMessageBundleName()
+	 */
+	@Override
+	protected String getMessageBundleName() {
+		return "PFSMessages";
+	}
 
 }

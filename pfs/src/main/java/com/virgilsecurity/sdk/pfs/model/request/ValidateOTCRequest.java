@@ -39,24 +39,25 @@ import com.google.gson.annotations.SerializedName;
  */
 public class ValidateOTCRequest {
 
-    @SerializedName("one_time_cards_ids")
-    private List<String> cardsIds;
+	@SerializedName("one_time_cards_ids")
+	private List<String> cardsIds;
 
-    /**
-     * Create new instance of {@link ValidateOTCRequest}.
-     * 
-     * @param cardsIds
-     */
-    public ValidateOTCRequest(List<String> cardsIds) {
-        super();
-        this.cardsIds = cardsIds;
-    }
+	/**
+	 * Create new instance of {@link ValidateOTCRequest}.
+	 * 
+	 * @param cardsIds
+	 *            the cards identifiers.
+	 */
+	public ValidateOTCRequest(List<String> cardsIds) {
+		super();
+		this.cardsIds = cardsIds;
+	}
 
-    /**
-     * @return the cardsIds
-     */
-    public List<String> getCardsIds() {
-        return cardsIds;
-    }
+	/**
+	 * @return the cardsIds the cards identifiers.
+	 */
+	public List<String> getCardsIds() {
+		return cardsIds;
+	}
 
 }

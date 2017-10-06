@@ -49,9 +49,30 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
  */
 public class SecureSession {
 
+	public static InitiationMessage extractInitiationMessage(byte[] message) {
+		String json = ConvertionUtils.toString(message);
+		InitiationMessage msg = GsonUtils.getGson().fromJson(json, InitiationMessage.class);
+		return msg;
+	}
+	public static InitiationMessage extractInitiationMessage(String jsonMessage) {
+		InitiationMessage msg = GsonUtils.getGson().fromJson(jsonMessage, InitiationMessage.class);
+		return msg;
+	}
+	public static Message extractMessage(byte[] message) {
+		String json = ConvertionUtils.toString(message);
+		return extractMessage(json);
+	}
+	public static Message extractMessage(String jsonMessage) {
+		Message msg = GsonUtils.getGson().fromJson(jsonMessage, Message.class);
+		return msg;
+	}
+
 	private Date expirationDate;
+
 	private VirgilPFS pfs;
+
 	private VirgilPFSSession pfsSession;
+
 	private FirstMessageGenerator firstMsgGenerator;
 
 	public SecureSession() {
@@ -64,28 +85,6 @@ public class SecureSession {
 		this.pfsSession = pfsSession;
 		this.pfs.setSession(pfsSession);
 		this.firstMsgGenerator = firstMsgGenerator;
-	}
-
-	/**
-	 * Checks if this session is expired at {@docRoot theDate}.
-	 * 
-	 * @param theDate
-	 * @return {@code true} if session if expired.
-	 */
-	public boolean isExpired(Date theDate) {
-		if (this.expirationDate == null) {
-			return false;
-		}
-		return theDate.after(this.expirationDate);
-	}
-
-	/**
-	 * Checks if this session is expired.
-	 * 
-	 * @return {@code true} if session if expired.
-	 */
-	public boolean isExpired() {
-		return this.isExpired(new Date());
 	}
 
 	/**
@@ -165,43 +164,6 @@ public class SecureSession {
 		return msg;
 	}
 
-	public static InitiationMessage extractInitiationMessage(byte[] message) {
-		String json = ConvertionUtils.toString(message);
-		InitiationMessage msg = GsonUtils.getGson().fromJson(json, InitiationMessage.class);
-		return msg;
-	}
-
-	public static InitiationMessage extractInitiationMessage(String jsonMessage) {
-		InitiationMessage msg = GsonUtils.getGson().fromJson(jsonMessage, InitiationMessage.class);
-		return msg;
-	}
-
-	public static Message extractMessage(byte[] message) {
-		String json = ConvertionUtils.toString(message);
-		return extractMessage(json);
-	}
-
-	public static Message extractMessage(String jsonMessage) {
-		Message msg = GsonUtils.getGson().fromJson(jsonMessage, Message.class);
-		return msg;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
-		if (pfsSession != null) {
-			result = prime * result + Arrays.hashCode(getIdentifier());
-		}
-		return result;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -240,11 +202,16 @@ public class SecureSession {
 		return true;
 	}
 
-	/**
-	 * @return the pfs
-	 */
-	public VirgilPFS getPfs() {
-		return pfs;
+	public byte[] getAdditionalData() {
+		return this.pfsSession.getAdditionalData();
+	}
+
+	public byte[] getDecryptionKey() {
+		return this.pfsSession.getDecryptionSecretKey();
+	}
+
+	public byte[] getEncryptionKey() {
+		return this.pfsSession.getEncryptionSecretKey();
 	}
 
 	/**
@@ -258,16 +225,49 @@ public class SecureSession {
 		return this.pfsSession.getIdentifier();
 	}
 
-	public byte[] getEncryptionKey() {
-		return this.pfsSession.getEncryptionSecretKey();
+	/**
+	 * @return the pfs
+	 */
+	public VirgilPFS getPfs() {
+		return pfs;
 	}
 
-	public byte[] getDecryptionKey() {
-		return this.pfsSession.getDecryptionSecretKey();
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
+		if (pfsSession != null) {
+			result = prime * result + Arrays.hashCode(getIdentifier());
+		}
+		return result;
 	}
 
-	public byte[] getAdditionalData() {
-		return this.pfsSession.getAdditionalData();
+	/**
+	 * Checks if this session is expired.
+	 * 
+	 * @return {@code true} if session if expired.
+	 */
+	public boolean isExpired() {
+		return this.isExpired(new Date());
+	}
+
+	/**
+	 * Checks if this session is expired at {@code theDate}.
+	 * 
+	 * @param theDate The date.
+	 * @return {@code true} if session if expired on the date {@code theDate}.
+	 */
+	public boolean isExpired(Date theDate) {
+		if (this.expirationDate == null) {
+			return false;
+		}
+		return theDate.after(this.expirationDate);
 	}
 
 }

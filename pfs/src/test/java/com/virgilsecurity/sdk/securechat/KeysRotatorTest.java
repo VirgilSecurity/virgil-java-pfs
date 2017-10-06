@@ -32,7 +32,7 @@ import com.virgilsecurity.sdk.pfs.BaseIT;
 import com.virgilsecurity.sdk.pfs.VirgilPFSClient;
 import com.virgilsecurity.sdk.pfs.VirgilPFSClientContext;
 import com.virgilsecurity.sdk.pfs.model.RecipientCardsSet;
-import com.virgilsecurity.sdk.pfs.model.response.OtcCountResponse;
+import com.virgilsecurity.sdk.pfs.model.response.CardStatus;
 import com.virgilsecurity.sdk.securechat.exceptions.SessionManagerException;
 import com.virgilsecurity.sdk.securechat.impl.DefaultUserDataStorage;
 import com.virgilsecurity.sdk.securechat.keystorage.JsonFileKeyStorage;
@@ -147,15 +147,15 @@ public class KeysRotatorTest extends BaseIT {
 		String cardId = card.getId();
 
 		this.keysRotator.rotateKeys(10);
-		OtcCountResponse status = this.pfsClient.getOtcCount(cardId);
+		CardStatus status = this.pfsClient.getCardStatus(cardId);
 		assertEquals(10, status.getActive());
 
 		this.keysRotator.rotateKeys(10);
-		status = this.pfsClient.getOtcCount(cardId);
+		status = this.pfsClient.getCardStatus(cardId);
 		assertEquals(10, status.getActive());
 
 		this.keysRotator.rotateKeys(100);
-		status = this.pfsClient.getOtcCount(cardId);
+		status = this.pfsClient.getCardStatus(cardId);
 		assertEquals(100, status.getActive());
 	}
 
@@ -208,7 +208,7 @@ public class KeysRotatorTest extends BaseIT {
 		} catch (KeyEntryNotFoundException e) {
 		}
 
-		OtcCountResponse status = this.pfsClient.getOtcCount(cardId);
+		CardStatus status = this.pfsClient.getCardStatus(cardId);
 
 		assertEquals(10, status.getActive());
 	}

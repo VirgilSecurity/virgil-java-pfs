@@ -39,24 +39,25 @@ import com.google.gson.annotations.SerializedName;
  */
 public class CredentialsRequest {
 
-    @SerializedName("identity_cards_ids")
-    private List<String> cardsIds;
+	@SerializedName("identity_cards_ids")
+	private List<String> cardsIds;
 
-    /**
-     * Create new instance of {@link CredentialsRequest}.
-     * 
-     * @param cardsIds
-     */
-    public CredentialsRequest(List<String> cardsIds) {
-        super();
-        this.cardsIds = cardsIds;
-    }
+	/**
+	 * Create new instance of {@link CredentialsRequest}.
+	 * 
+	 * @param cardsIds
+	 *            the cards identifiers.
+	 */
+	public CredentialsRequest(List<String> cardsIds) {
+		super();
+		this.cardsIds = cardsIds;
+	}
 
-    /**
-     * @return the cardsIds
-     */
-    public List<String> getCardsIds() {
-        return cardsIds;
-    }
+	/**
+	 * @return the cards identifiers.
+	 */
+	public List<String> getCardsIds() {
+		return cardsIds;
+	}
 
 }

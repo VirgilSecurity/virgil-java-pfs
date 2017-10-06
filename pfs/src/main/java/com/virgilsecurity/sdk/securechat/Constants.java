@@ -37,6 +37,15 @@ public interface Constants {
 
 	public interface Errors {
 
+		public interface Migration {
+			public interface V1_1 {
+				int UNKNOWN_SESSION_STATE = 0x01;
+				int IMPORTING_EPH_PRIVATE_KEY = 0x02;
+				int IMPORTING_LT_PRIVATE_KEY = 0x03;
+				int IMPORTING_OT_PRIVATE_KEY = 0x04;
+			}
+		}
+
 		public interface SecureChat {
 			int OBTAINING_RECIPIENT_CARDS_SET = 0x00001;
 			int RECIPIENT_SET_EMPTY = 0x00002;

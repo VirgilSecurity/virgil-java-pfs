@@ -37,6 +37,7 @@ import com.virgilsecurity.sdk.client.exceptions.CardValidationException;
 import com.virgilsecurity.sdk.client.model.CardModel;
 import com.virgilsecurity.sdk.pfs.VirgilPFSClient;
 import com.virgilsecurity.sdk.pfs.model.RecipientCardsSet;
+import com.virgilsecurity.sdk.securechat.exceptions.MigrationException;
 import com.virgilsecurity.sdk.securechat.exceptions.SecureChatException;
 import com.virgilsecurity.sdk.securechat.exceptions.SessionManagerException;
 import com.virgilsecurity.sdk.securechat.migration.MigrationManager;
@@ -56,18 +57,60 @@ import com.virgilsecurity.sdk.utils.StringUtils;
  */
 public class SecureChat {
 
+	public enum Version {
+		V1_0("1.0"), V1_1("1.1");
+
+		// Current version
+		public static Version currentVersion = Version.V1_1;
+
+		public static Version fromString(String text) {
+			for (Version v : Version.values()) {
+				if (v.code.equalsIgnoreCase(text)) {
+					return v;
+				}
+			}
+			return V1_0;
+		}
+
+		@SuppressWarnings("incomplete-switch")
+		public static Version[] getSortedVersions(Version version) {
+			switch (version) {
+			case V1_0:
+				return new Version[] { V1_1 };
+			}
+			return new Version[0];
+		}
+
+		private String code;
+
+		private Version(String code) {
+			this.code = code;
+		}
+	}
+
 	private static final String CONFIGURATION_STORAGE_KEY = "CONFIGURATION_STORAGE";
 
 	private static final Logger log = Logger.getLogger(SecureChat.class.getName());
 
+	public static MessageType getMessageType(String message) {
+		if (SessionStateResolver.isInitiationMessage(message)) {
+			return MessageType.INITIAL;
+		} else if (SessionStateResolver.isRegularMessage(message)) {
+			return MessageType.REGULAR;
+		}
+
+		return MessageType.UNKNOWN;
+	}
+
 	// User's identity card identifier
 	private String identityCardId;
 	private VirgilPFSClient client;
-
 	private EphemeralCardsReplenisher ephemeralCardsReplenisher;
 	private SessionManager sessionManager;
 	private KeysRotator rotator;
+
 	private UserDataStorage insensitiveDataStorage;
+
 	private MigrationManager migrationManager;
 
 	/**
@@ -109,41 +152,6 @@ public class SecureChat {
 	}
 
 	/**
-	 * Initializes SecureChat and migrate existing data.
-	 */
-	public void initialize() {
-		initialize(true);
-	}
-
-	/**
-	 * Initializes SecureChat
-	 * 
-	 * @param migrateAutomatically
-	 *            If {@code true} existing data will be migrated automatically.
-	 */
-	public void initialize(boolean migrateAutomatically) {
-		if (migrateAutomatically) {
-			this.migrate();
-		}
-	}
-
-	public void migrate() {
-		Version previousVersion = this.getPreviousVersion();
-		this.migrate(previousVersion);
-
-		// Update version
-		this.insensitiveDataStorage.addData(CONFIGURATION_STORAGE_KEY, this.getVersionKey(),
-				Version.currentVersion.code);
-	}
-
-	/**
-	 * Wipes cache used for loadUp and activeSession functions.
-	 */
-	public void wipeCache() {
-		this.sessionManager.wipeCache();
-	}
-
-	/**
 	 * Returns latest active session with specified participant, if present.
 	 * 
 	 * @param cardId
@@ -158,46 +166,43 @@ public class SecureChat {
 	}
 
 	/**
-	 * Starts new session with given recipient.
-	 * 
-	 * @param recipientCard
-	 *            The recipient's identity Virgil Card. WARNING: Identity Card
-	 *            should be validated before getting here!
-	 * @param additionalData
-	 *            Data for additional authorization (e.g. concatenated
-	 *            usernames). AdditionalData should be equal on both participant
-	 *            sides. AdditionalData should be constracted on both sides
-	 *            independently and should NOT be transmitted for security
-	 *            reasons.
-	 * @return The initialized {@link SecureSession}.
-	 * @throws SecureChatException
-	 * @throws CardValidationException
+	 * Reset chat.
 	 */
-	public SecureSession startNewSession(CardModel recipientCard, byte[] additionalData)
-			throws SecureChatException, CardValidationException {
-		log.fine(String.format("SecureChat: %s. Starting new session with: %s", this.identityCardId,
-				recipientCard.getId()));
+	public void gentleReset() {
+		this.sessionManager.gentleReset();
+	}
 
-		this.sessionManager.checkExistingSessionOnStart(recipientCard.getId());
+	public Version getPreviousVersion() {
+		String versionStr = this.insensitiveDataStorage.getData(CONFIGURATION_STORAGE_KEY, this.getVersionKey());
+		Version version = Version.fromString(versionStr);
 
-		// Get recipient's credentials
-		List<RecipientCardsSet> cardsSets = null;
-		try {
-			cardsSets = this.client.getRecipientCardsSet(Arrays.asList(recipientCard.getId()));
-		} catch (Exception e) {
-			throw new SecureChatException(Constants.Errors.SecureChat.OBTAINING_RECIPIENT_CARDS_SET,
-					"Error obtaining recipient cards set.", e);
+		return version;
+	}
+
+	private String getVersionKey() {
+		return String.format("VIRGIL.OWNER=%s.VERSION", this.identityCardId);
+	}
+
+	/**
+	 * Initializes SecureChat and migrate existing data.
+	 * 
+	 * @throws MigrationException
+	 */
+	public void initialize() throws MigrationException {
+		initialize(true);
+	}
+
+	/**
+	 * Initializes SecureChat
+	 * 
+	 * @param migrateAutomatically
+	 *            If {@code true} existing data will be migrated automatically.
+	 * @throws MigrationException
+	 */
+	public void initialize(boolean migrateAutomatically) throws MigrationException {
+		if (migrateAutomatically) {
+			this.migrate();
 		}
-		if (cardsSets.isEmpty()) {
-			throw new SecureChatException(Constants.Errors.SecureChat.RECIPIENT_SET_EMPTY,
-					"Error obtaining recipient cards set. Empty set.");
-		}
-
-		// FIXME Multiple sessions?
-		RecipientCardsSet cardsSet = cardsSets.get(0);
-
-		SecureSession session = this.startNewSession(recipientCard, cardsSet, additionalData);
-		return session;
 	}
 
 	/**
@@ -250,6 +255,52 @@ public class SecureChat {
 		}
 	}
 
+	public void migrate() throws MigrationException {
+		Version previousVersion = this.getPreviousVersion();
+		this.migrate(previousVersion);
+
+		// Update version
+		this.insensitiveDataStorage.addData(CONFIGURATION_STORAGE_KEY, this.getVersionKey(),
+				Version.currentVersion.code);
+	}
+
+	private void migrate(Version previousVersion) throws MigrationException {
+		Version[] migrationVersions = Version.getSortedVersions(previousVersion);
+
+		log.fine(String.format("Versions to migrate: %s", String.valueOf(migrationVersions)));
+
+		for (Version migrationVersion : migrationVersions) {
+			switch (migrationVersion) {
+			case V1_0:
+				break;
+			case V1_1:
+				this.migrationManager.migrateToV1_1();
+			}
+		}
+	}
+
+	/**
+	 * Removes session with given participant and session identifier.
+	 * 
+	 * @param cardId
+	 *            The participant's identity Virgil Card identifier
+	 * @param sessionId
+	 *            The session identifier.
+	 */
+	public void removeSession(String cardId, byte[] sessionId) {
+		this.sessionManager.removeSession(cardId, sessionId);
+	}
+
+	/**
+	 * Removes all sessions with given participant.
+	 * 
+	 * @param cardId
+	 *            The participant's identity Virgil Card identifier.
+	 */
+	public void removeSessions(String cardId) {
+		this.sessionManager.removeSessions(cardId);
+	}
+
 	/**
 	 * Periodic Keys processing.
 	 * 
@@ -275,29 +326,46 @@ public class SecureChat {
 	}
 
 	/**
-	 * Removes all sessions with given participant.
+	 * Starts new session with given recipient.
 	 * 
-	 * @param cardId
-	 *            The participant's identity Virgil Card identifier.
+	 * @param recipientCard
+	 *            The recipient's identity Virgil Card. WARNING: Identity Card
+	 *            should be validated before getting here!
+	 * @param additionalData
+	 *            Data for additional authorization (e.g. concatenated
+	 *            usernames). AdditionalData should be equal on both participant
+	 *            sides. AdditionalData should be constracted on both sides
+	 *            independently and should NOT be transmitted for security
+	 *            reasons.
+	 * @return The initialized {@link SecureSession}.
+	 * @throws SecureChatException
+	 * @throws CardValidationException
 	 */
-	public void removeSessions(String cardId) {
-		this.sessionManager.removeSessions(cardId);
-	}
+	public SecureSession startNewSession(CardModel recipientCard, byte[] additionalData)
+			throws SecureChatException, CardValidationException {
+		log.fine(String.format("SecureChat: %s. Starting new session with: %s", this.identityCardId,
+				recipientCard.getId()));
 
-	/**
-	 * Removes session with given participant and session identifier.
-	 * 
-	 * @param cardId
-	 *            The participant's identity Virgil Card identifier
-	 * @param sessionId
-	 *            The session identifier.
-	 */
-	public void removeSession(String cardId, byte[] sessionId) {
-		this.sessionManager.removeSession(cardId, sessionId);
-	}
+		this.sessionManager.checkExistingSessionOnStart(recipientCard.getId());
 
-	public void gentleReset() {
-		this.sessionManager.gentleReset();
+		// Get recipient's credentials
+		List<RecipientCardsSet> cardsSets = null;
+		try {
+			cardsSets = this.client.getRecipientCardsSet(Arrays.asList(recipientCard.getId()));
+		} catch (Exception e) {
+			throw new SecureChatException(Constants.Errors.SecureChat.OBTAINING_RECIPIENT_CARDS_SET,
+					"Error obtaining recipient cards set.", e);
+		}
+		if (cardsSets.isEmpty()) {
+			throw new SecureChatException(Constants.Errors.SecureChat.RECIPIENT_SET_EMPTY,
+					"Error obtaining recipient cards set. Empty set.");
+		}
+
+		// FIXME Multiple sessions?
+		RecipientCardsSet cardsSet = cardsSets.get(0);
+
+		SecureSession session = this.startNewSession(recipientCard, cardsSet, additionalData);
+		return session;
 	}
 
 	private SecureSession startNewSession(CardModel recipientCard, RecipientCardsSet cardsSet, byte[] additionalData)
@@ -308,71 +376,11 @@ public class SecureChat {
 		return this.sessionManager.initializeInitiatorSession(recipientCard, cardsSet, additionalData);
 	}
 
-	private void migrate(Version previousVersion) {
-		Version[] migrationVersions = Version.getSortedVersions(previousVersion);
-
-		log.fine(String.format("Versions to migrate: %s", String.valueOf(migrationVersions)));
-
-		for (Version migrationVersion : migrationVersions) {
-			switch (migrationVersion) {
-			case V1_0:
-				break;
-			case V1_1:
-				this.migrationManager.migrateToV1_1();
-			}
-		}
+	/**
+	 * Wipes cache used for loadUp and activeSession functions.
+	 */
+	public void wipeCache() {
+		this.sessionManager.wipeCache();
 	}
-
-	public Version getPreviousVersion() {
-		String versionStr = this.insensitiveDataStorage.getData(CONFIGURATION_STORAGE_KEY, this.getVersionKey());
-		Version version = Version.fromString(versionStr);
-
-		return version;
-	}
-
-	private String getVersionKey() {
-		return String.format("VIRGIL.OWNER=%s.VERSION", this.identityCardId);
-	}
-
-	public enum Version {
-		V1_0("1.0"), V1_1("1.1");
-
-		// Current version
-		public static Version currentVersion = Version.V1_1;
-
-		private String code;
-
-		private Version(String code) {
-			this.code = code;
-		}
-
-		@SuppressWarnings("incomplete-switch")
-		public static Version[] getSortedVersions(Version version) {
-			switch (version) {
-			case V1_0:
-				return new Version[] { V1_1 };
-			}
-			return new Version[0];
-		}
-
-		public static Version fromString(String text) {
-			for (Version v : Version.values()) {
-				if (v.code.equalsIgnoreCase(text)) {
-					return v;
-				}
-			}
-			return V1_0;
-		}
-	}
-	
-	public static MessageType getMessageType(String message) {
-        if (SessionStateResolver.isInitiationMessage(message)) {
-            return MessageType.INITIAL;
-        } else if (SessionStateResolver.isRegularMessage(message)) {
-            return MessageType.REGULAR;
-        }
-
-        return MessageType.UNKNOWN;
-    }
 
 }

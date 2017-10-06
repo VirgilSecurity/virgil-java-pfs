@@ -1,3 +1,32 @@
+/*
+ * Copyright (c) 2017, Virgil Security, Inc.
+ *
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * * Neither the name of virgil nor the names of its
+ *   contributors may be used to endorse or promote products derived from
+ *   this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.virgilsecurity.sdk.securechat;
 
 import java.util.AbstractMap;
@@ -13,7 +42,7 @@ import java.util.logging.Logger;
 
 import com.virgilsecurity.sdk.client.model.CardModel;
 import com.virgilsecurity.sdk.pfs.VirgilPFSClient;
-import com.virgilsecurity.sdk.pfs.model.response.OtcCountResponse;
+import com.virgilsecurity.sdk.pfs.model.response.CardStatus;
 import com.virgilsecurity.sdk.securechat.keystorage.KeyAttrs;
 import com.virgilsecurity.sdk.securechat.model.ExhaustInfo;
 import com.virgilsecurity.sdk.securechat.model.ExhaustInfo.ExhaustInfoEntry;
@@ -22,6 +51,12 @@ import com.virgilsecurity.sdk.securechat.model.SessionState;
 import com.virgilsecurity.sdk.securechat.utils.ArrayUtils;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
+/**
+ * This class provides key rotation functionality.
+ * 
+ * @author Andrii Iakovenko
+ *
+ */
 public class KeysRotator {
 	private static final Logger log = Logger.getLogger(KeysRotator.class.getName());
 	static final int SECONDS_IN_DAY = 24 * 60 * 60;
@@ -54,42 +89,6 @@ public class KeysRotator {
 		this.pfsClient = pfsClient;
 	}
 
-	public void rotateKeys(int desiredNumberOfCards) {
-		log.fine("Started keys' rotation");
-		try {
-			semaphore.acquire();
-
-			log.fine("Get OTC status.");
-			OtcCountResponse status = pfsClient.getOtcCount(this.identityCard.getId());
-			int numberOfMissingCards = Math.max(desiredNumberOfCards - status.getActive(), 0);
-
-			// Cleanup
-			log.fine("Cleanup");
-			cleanup();
-
-			log.fine("Adding new cards.");
-			boolean addLtCard = !keyStorageManager.hasRelevantLtKey(this.longTermKeysTtl);
-			if (numberOfMissingCards > 0 || addLtCard) {
-				ephemeralCardsReplenisher.addCards(addLtCard, numberOfMissingCards);
-			}
-		} catch (InterruptedException e) {
-			log.severe("Rotate keys interrupted");
-		} finally {
-			semaphore.release();
-		}
-	}
-
-	private void updateExhaustInfo(Date now, ExhaustInfo exhaustInfo, List<String> exhaustedCardsIds) {
-		List<ExhaustInfoEntry> newOtc = exhaustInfo.getOtc();
-		for (String exhaustedCardsId : exhaustedCardsIds) {
-			ExhaustInfoEntry infoEntry = new ExhaustInfoEntry(exhaustedCardsId, now);
-			newOtc.add(infoEntry);
-		}
-		ExhaustInfo newExhaustInfo = new ExhaustInfo(newOtc, exhaustInfo.getLtc(), exhaustInfo.getSessions());
-
-		this.exhaustInfoManager.saveKeysExhaustInfo(newExhaustInfo);
-	}
-
 	private void cleanup() {
 		log.fine("Cleanup started.");
 		Date now = new Date();
@@ -101,6 +100,14 @@ public class KeysRotator {
 		List<String> exhaustedCardsIds = this.pfsClient.validateOneTimeCards(this.identityCard.getId(), otCardsToCheck);
 
 		this.updateExhaustInfo(now, updatedExhaustInfo, exhaustedCardsIds);
+	}
+
+	private Date minusSeconds(Date now, int ttl) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(now);
+		cal.add(Calendar.SECOND, -ttl);
+
+		return cal.getTime();
 	}
 
 	private Entry<ExhaustInfo, List<String>> processExhaustedStuff(Date now) {
@@ -130,7 +137,7 @@ public class KeysRotator {
 		exhaustInfo = removeExpiredSessions(now, allSessionStates, exhaustInfo);
 		removeOrhpanedSessionKeys(sessionKeys, allSessionStates);
 
-		return new AbstractMap.SimpleEntry(exhaustInfo, otKeysIdsToCheck);
+		return new AbstractMap.SimpleEntry<ExhaustInfo, List<String>>(exhaustInfo, otKeysIdsToCheck);
 	}
 
 	private ExhaustInfo removeExpiredLtKeys(Date now, List<KeyAttrs> ltKeys, ExhaustInfo exhaustInfo) {
@@ -182,40 +189,7 @@ public class KeysRotator {
 		return new ExhaustInfo(exhaustInfo.getOtc(), newLtKeys, exhaustInfo.getSessions());
 	}
 
-	private ExhaustInfo removeOrphanedOtcs(Date now, List<KeyAttrs> otKeys, ExhaustInfo exhaustInfo) {
-		log.fine("Removing orphaned otcs.");
-
-		List<String> otKeysIds = new LinkedList<>();
-		for (KeyAttrs key : otKeys) {
-			otKeysIds.add(key.getName());
-		}
-
-		// Remove ot keys that have been used some time ago
-		Date exDate = minusSeconds(now, this.exhaustedOneTimeCardTtl);
-
-		List<String> otcIdsToRemove = new LinkedList<>();
-		for (ExhaustInfoEntry infoEntry : exhaustInfo.getOtc()) {
-			if (exDate.after(infoEntry.getExhaustDate()) && otKeysIds.contains(infoEntry.getIdentifier())) {
-				otcIdsToRemove.add(infoEntry.getIdentifier());
-			}
-		}
-
-		if (!otcIdsToRemove.isEmpty()) {
-			log.warning(String.format("WARNING: orphaned otcs found: %d", otcIdsToRemove.size()));
-			keyStorageManager.removeOtPrivateKeys(otcIdsToRemove);
-		}
-
-		// Updated exhaust info
-		List<ExhaustInfoEntry> newOtKeys = new LinkedList<>();
-		for (ExhaustInfoEntry infoEntry : exhaustInfo.getOtc()) {
-			if (otcIdsToRemove.contains(infoEntry.getIdentifier())) {
-				newOtKeys.add(infoEntry);
-			}
-		}
-
-		return new ExhaustInfo(newOtKeys, exhaustInfo.getLtc(), exhaustInfo.getSessions());
-	}
-
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private ExhaustInfo removeExpiredSessions(Date now, List<Map.Entry<String, SessionState>> allSessions,
 			ExhaustInfo exhaustInfo) {
 		log.fine("Removing expired sessions.");
@@ -227,14 +201,15 @@ public class KeysRotator {
 
 		// Remove expired sessions
 		Date exDate = minusSeconds(now, this.expiredSessionTtl);
-//		List<SessionExhaustInfo> sessionInfosToRemove = new LinkedList<>();
+		// List<SessionExhaustInfo> sessionInfosToRemove = new LinkedList<>();
 		List<Map.Entry<String, byte[]>> sessionStatesToRemove = new LinkedList<>();
 		List<byte[]> sessionIdsToRemove = new LinkedList<>();
 		for (SessionExhaustInfo sessionInfo : exhaustInfo.getSessions()) {
-			if (exDate.after(sessionInfo.getExhaustDate()) && ArrayUtils.isInList(sessionsIds, sessionInfo.getIdentifier())) {
-//				sessionInfosToRemove.add(sessionInfo);
+			if (exDate.after(sessionInfo.getExhaustDate())
+					&& ArrayUtils.isInList(sessionsIds, sessionInfo.getIdentifier())) {
+				// sessionInfosToRemove.add(sessionInfo);
 				sessionIdsToRemove.add(sessionInfo.getIdentifier());
-				
+
 				sessionStatesToRemove
 						.add(new AbstractMap.SimpleEntry(sessionInfo.getCardId(), sessionInfo.getIdentifier()));
 			}
@@ -274,14 +249,6 @@ public class KeysRotator {
 		return new ExhaustInfo(exhaustInfo.getOtc(), exhaustInfo.getLtc(), newSessions);
 	}
 
-	private Date minusSeconds(Date now, int ttl) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(now);
-		cal.add(Calendar.SECOND, -ttl);
-
-		return cal.getTime();
-	}
-
 	private void removeOrhpanedSessionKeys(List<KeyAttrs> sessionKeys, List<Entry<String, SessionState>> allSessions) {
 		log.fine("Removing orphaned session keys.");
 
@@ -301,5 +268,81 @@ public class KeysRotator {
 			log.warning(String.format("WARNING: orphaned session keys found: %d", orphanedSessionKeysIds.size()));
 			keyStorageManager.removeSessionKeys(orphanedSessionKeysIds);
 		}
+	}
+
+	private ExhaustInfo removeOrphanedOtcs(Date now, List<KeyAttrs> otKeys, ExhaustInfo exhaustInfo) {
+		log.fine("Removing orphaned otcs.");
+
+		List<String> otKeysIds = new LinkedList<>();
+		for (KeyAttrs key : otKeys) {
+			otKeysIds.add(key.getName());
+		}
+
+		// Remove ot keys that have been used some time ago
+		Date exDate = minusSeconds(now, this.exhaustedOneTimeCardTtl);
+
+		List<String> otcIdsToRemove = new LinkedList<>();
+		for (ExhaustInfoEntry infoEntry : exhaustInfo.getOtc()) {
+			if (exDate.after(infoEntry.getExhaustDate()) && otKeysIds.contains(infoEntry.getIdentifier())) {
+				otcIdsToRemove.add(infoEntry.getIdentifier());
+			}
+		}
+
+		if (!otcIdsToRemove.isEmpty()) {
+			log.warning(String.format("WARNING: orphaned otcs found: %d", otcIdsToRemove.size()));
+			keyStorageManager.removeOtPrivateKeys(otcIdsToRemove);
+		}
+
+		// Updated exhaust info
+		List<ExhaustInfoEntry> newOtKeys = new LinkedList<>();
+		for (ExhaustInfoEntry infoEntry : exhaustInfo.getOtc()) {
+			if (otcIdsToRemove.contains(infoEntry.getIdentifier())) {
+				newOtKeys.add(infoEntry);
+			}
+		}
+
+		return new ExhaustInfo(newOtKeys, exhaustInfo.getLtc(), exhaustInfo.getSessions());
+	}
+
+	/**
+	 * Rotate keys.
+	 * 
+	 * @param desiredNumberOfCards
+	 *            the desired number of cards which should be available.
+	 */
+	public void rotateKeys(int desiredNumberOfCards) {
+		log.fine("Started keys' rotation");
+		try {
+			semaphore.acquire();
+
+			log.fine("Get OTC status.");
+			CardStatus status = pfsClient.getCardStatus(this.identityCard.getId());
+			int numberOfMissingCards = Math.max(desiredNumberOfCards - status.getActive(), 0);
+
+			// Cleanup
+			log.fine("Cleanup");
+			cleanup();
+
+			log.fine("Adding new cards.");
+			boolean addLtCard = !keyStorageManager.hasRelevantLtKey(this.longTermKeysTtl);
+			if (numberOfMissingCards > 0 || addLtCard) {
+				ephemeralCardsReplenisher.addCards(addLtCard, numberOfMissingCards);
+			}
+		} catch (InterruptedException e) {
+			log.severe("Rotate keys interrupted");
+		} finally {
+			semaphore.release();
+		}
+	}
+
+	private void updateExhaustInfo(Date now, ExhaustInfo exhaustInfo, List<String> exhaustedCardsIds) {
+		List<ExhaustInfoEntry> newOtc = exhaustInfo.getOtc();
+		for (String exhaustedCardsId : exhaustedCardsIds) {
+			ExhaustInfoEntry infoEntry = new ExhaustInfoEntry(exhaustedCardsId, now);
+			newOtc.add(infoEntry);
+		}
+		ExhaustInfo newExhaustInfo = new ExhaustInfo(newOtc, exhaustInfo.getLtc(), exhaustInfo.getSessions());
+
+		this.exhaustInfoManager.saveKeysExhaustInfo(newExhaustInfo);
 	}
 }

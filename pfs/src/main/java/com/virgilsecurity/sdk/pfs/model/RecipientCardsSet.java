@@ -38,76 +38,90 @@ import com.virgilsecurity.sdk.client.model.CardModel;
  */
 public class RecipientCardsSet {
 
-    @SerializedName("identity_card")
-    private CardModel identityCard;
+	@SerializedName("identity_card")
+	private CardModel identityCard;
 
-    @SerializedName("long_time_card")
-    private CardModel longTermCard;
+	@SerializedName("long_time_card")
+	private CardModel longTermCard;
 
-    @SerializedName("one_time_card")
-    private CardModel oneTimeCard;
+	@SerializedName("one_time_card")
+	private CardModel oneTimeCard;
 
-    /**
-     * Create new instance of {@link RecipientCardsSet}.
-     */
-    public RecipientCardsSet() {
-    }
+	/**
+	 * Create new instance of {@link RecipientCardsSet}.
+	 */
+	public RecipientCardsSet() {
+	}
 
-    /**
-     * Create new instance of {@link RecipientCardsSet}.
-     * 
-     * @param longTermCard
-     * @param oneTimeCard
-     */
-    public RecipientCardsSet(CardModel longTermCard, CardModel oneTimeCard) {
-        super();
-        this.longTermCard = longTermCard;
-        this.oneTimeCard = oneTimeCard;
-    }
+	/**
+	 * Create new instance of {@link RecipientCardsSet}.
+	 * 
+	 * @param longTermCard
+	 *            the long term card.
+	 * @param oneTimeCard
+	 *            the one-time card.
+	 */
+	public RecipientCardsSet(CardModel longTermCard, CardModel oneTimeCard) {
+		super();
+		this.longTermCard = longTermCard;
+		this.oneTimeCard = oneTimeCard;
+	}
 
-    /**
-     * @return the longTermCard
-     */
-    public CardModel getLongTermCard() {
-        return longTermCard;
-    }
+	/**
+	 * Get identity card.
+	 * 
+	 * @return the identity card.
+	 */
+	public CardModel getIdentityCard() {
+		return identityCard;
+	}
 
-    /**
-     * @param longTermCard
-     *            the longTermCard to set
-     */
-    public void setLongTermCard(CardModel longTermCard) {
-        this.longTermCard = longTermCard;
-    }
+	/**
+	 * Get the long term card.
+	 * 
+	 * @return the long term card.
+	 */
+	public CardModel getLongTermCard() {
+		return longTermCard;
+	}
 
-    /**
-     * @return the oneTimeCard
-     */
-    public CardModel getOneTimeCard() {
-        return oneTimeCard;
-    }
+	/**
+	 * Get the one-time card.
+	 * 
+	 * @return one-time card.
+	 */
+	public CardModel getOneTimeCard() {
+		return oneTimeCard;
+	}
 
-    /**
-     * @param oneTimeCard
-     *            the oneTimeCard to set
-     */
-    public void setOneTimeCard(CardModel oneTimeCard) {
-        this.oneTimeCard = oneTimeCard;
-    }
+	/**
+	 * Set identity card.
+	 * 
+	 * @param identityCard
+	 *            the identity card to set
+	 */
+	public void setIdentityCard(CardModel identityCard) {
+		this.identityCard = identityCard;
+	}
 
-    /**
-     * @return the identityCard
-     */
-    public CardModel getIdentityCard() {
-        return identityCard;
-    }
+	/**
+	 * Set the long term card.
+	 * 
+	 * @param longTermCard
+	 *            the long term card to set.
+	 */
+	public void setLongTermCard(CardModel longTermCard) {
+		this.longTermCard = longTermCard;
+	}
 
-    /**
-     * @param identityCard
-     *            the identityCard to set
-     */
-    public void setIdentityCard(CardModel identityCard) {
-        this.identityCard = identityCard;
-    }
+	/**
+	 * Set one-time card.
+	 * 
+	 * @param oneTimeCard
+	 *            the one-time card to set.
+	 */
+	public void setOneTimeCard(CardModel oneTimeCard) {
+		this.oneTimeCard = oneTimeCard;
+	}
 
 }

@@ -48,17 +48,6 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
  */
 public class GsonUtils {
 
-    private static Gson gson = null;
-
-    public static synchronized Gson getGson() {
-        if (gson == null) {
-            GsonBuilder builder = new GsonBuilder();
-            gson = builder.registerTypeHierarchyAdapter(byte[].class, new ByteArrayToBase64TypeAdapter())
-                    .disableHtmlEscaping().serializeNulls().create();
-        }
-        return gson;
-    }
-
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
         public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                 throws JsonParseException {
@@ -68,6 +57,17 @@ public class GsonUtils {
         public JsonElement serialize(byte[] src, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(ConvertionUtils.toBase64String(src));
         }
+    }
+
+    private static Gson gson = null;
+
+    public static synchronized Gson getGson() {
+        if (gson == null) {
+            GsonBuilder builder = new GsonBuilder();
+            gson = builder.registerTypeHierarchyAdapter(byte[].class, new ByteArrayToBase64TypeAdapter())
+                    .disableHtmlEscaping().serializeNulls().create();
+        }
+        return gson;
     }
 
 }

@@ -46,11 +46,13 @@ import com.virgilsecurity.sdk.pfs.model.request.CreateEphemeralCardRequest;
 import com.virgilsecurity.sdk.pfs.model.request.CredentialsRequest;
 import com.virgilsecurity.sdk.pfs.model.request.ValidateOTCRequest;
 import com.virgilsecurity.sdk.pfs.model.response.BootstrapCardsResponse;
-import com.virgilsecurity.sdk.pfs.model.response.OtcCountResponse;
+import com.virgilsecurity.sdk.pfs.model.response.CardStatus;
 import com.virgilsecurity.sdk.pfs.model.response.ValidateOTCResponse;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 /**
+ * This is Vigril PFS service client.
+ * 
  * @author Andrii Iakovenko
  *
  */
@@ -163,12 +165,19 @@ public class VirgilPFSClient extends ClientBase {
 		}
 	}
 
-	public OtcCountResponse getOtcCount(String recipientId) {
+	/**
+	 * Get recipient card status.
+	 * 
+	 * @param recipientId
+	 *            the recipient's Virgil Card identifier.
+	 * @return the card status.
+	 */
+	public CardStatus getCardStatus(String recipientId) {
 		try {
 			URL url = new URL(getContext().getEphemeralServiceURL(),
 					String.format("/v1/recipient/%s/actions/count-otcs", recipientId));
 
-			OtcCountResponse responseModel = execute(url, "POST", null, OtcCountResponse.class);
+			CardStatus responseModel = execute(url, "POST", null, CardStatus.class);
 
 			return responseModel;
 		} catch (VirgilServiceException e) {
@@ -178,10 +187,17 @@ public class VirgilPFSClient extends ClientBase {
 		}
 	}
 
-	public List<RecipientCardsSet> getRecipientCardsSet(String cardsIds) {
-		return getRecipientCardsSet(Arrays.asList(cardsIds));
+	private VirgilPFSClientContext getContext() {
+		return (VirgilPFSClientContext) context;
 	}
 
+	/**
+	 * Get cards of recipients.
+	 * 
+	 * @param cardsIds
+	 *            the list of recipient identifiers.
+	 * @return the recipient's cards.
+	 */
 	public List<RecipientCardsSet> getRecipientCardsSet(List<String> cardsIds) {
 		try {
 			URL url = new URL(getContext().getEphemeralServiceURL(), "/v1/recipient/actions/search-by-ids");
@@ -199,6 +215,26 @@ public class VirgilPFSClient extends ClientBase {
 		}
 	}
 
+	/**
+	 * Get recipient cards.
+	 * 
+	 * @param cardId
+	 *            the recipient card identifier.
+	 * @return the recipient's cards.
+	 */
+	public List<RecipientCardsSet> getRecipientCardsSet(String cardId) {
+		return getRecipientCardsSet(Arrays.asList(cardId));
+	}
+
+	/**
+	 * Validate one time cards.
+	 * 
+	 * @param recipientId
+	 *            the recipient identifier.
+	 * @param cardsIds
+	 *            the recipient cards identifiers.
+	 * @return the list of valid cards.
+	 */
 	public List<String> validateOneTimeCards(String recipientId, List<String> cardsIds) {
 		try {
 			URL url = new URL(getContext().getEphemeralServiceURL(),
@@ -215,10 +251,6 @@ public class VirgilPFSClient extends ClientBase {
 		} catch (Exception e) {
 			throw new VirgilPFSServiceException(e);
 		}
-	}
-
-	private VirgilPFSClientContext getContext() {
-		return (VirgilPFSClientContext) context;
 	}
 
 }

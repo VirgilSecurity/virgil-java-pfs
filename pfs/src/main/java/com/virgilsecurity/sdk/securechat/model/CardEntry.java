@@ -25,18 +25,18 @@ public class CardEntry {
 	}
 
 	/**
+	 * @return the publicKeyData
+	 */
+	public byte[] getPublicKeyData() {
+		return publicKeyData;
+	}
+
+	/**
 	 * @param identifier
 	 *            the identifier to set
 	 */
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
-	}
-
-	/**
-	 * @return the publicKeyData
-	 */
-	public byte[] getPublicKeyData() {
-		return publicKeyData;
 	}
 
 	/**

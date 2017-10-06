@@ -44,79 +44,81 @@ import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 /**
+ * This class provides fingerprint functionality.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class Fingerpint {
 
-    private static final int ITERATIONS = 4096;
+	private static final int ITERATIONS = 4096;
 
-    /**
-     * Calculate fingerprint for card identifiers.
-     * 
-     * @param cardsIds
-     *            the card identifiers.
-     * @return the fingerprint as a string.
-     */
-    public static String calculateFingerprint(List<String> cardsIds) {
-        List<String> sortedCardsIds = new ArrayList<>();
-        if (cardsIds != null) {
-        	for (String cardId : cardsIds) {
-        		if (cardId != null) {
-        			sortedCardsIds.add(cardId);
-        		}
-        	}
-        }
-        Collections.sort(sortedCardsIds);
+	/**
+	 * Calculate fingerprint for card identifiers.
+	 * 
+	 * @param cardsIds
+	 *            the card identifiers.
+	 * @return the fingerprint as a string.
+	 */
+	public static String calculateFingerprint(List<String> cardsIds) {
+		List<String> sortedCardsIds = new ArrayList<>();
+		if (cardsIds != null) {
+			for (String cardId : cardsIds) {
+				if (cardId != null) {
+					sortedCardsIds.add(cardId);
+				}
+			}
+		}
+		Collections.sort(sortedCardsIds);
 
-        byte[] cardsData = null;
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            for (String cardId : sortedCardsIds) {
-                os.write(ConvertionUtils.toBytes(cardId));
-            }
-            cardsData = os.toByteArray();
-        } catch (IOException e) {
-            // Nothing to do
-        }
+		byte[] cardsData = null;
+		try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+			for (String cardId : sortedCardsIds) {
+				os.write(ConvertionUtils.toBytes(cardId));
+			}
+			cardsData = os.toByteArray();
+		} catch (IOException e) {
+			// Nothing to do
+		}
 
-        byte[] previousHash = null;
-        try (VirgilHash hash = new VirgilHash(Algorithm.SHA384)) {
-            for (int i = 0; i < ITERATIONS; i++) {
-                if (previousHash == null) {
-                    previousHash = hash.hash(cardsData);
-                } else {
-                    byte[] data = new byte[cardsData.length + previousHash.length];
-                    System.arraycopy(cardsData, 0, data, 0, cardsData.length);
-                    System.arraycopy(previousHash, 0, data, cardsData.length, previousHash.length);
+		byte[] previousHash = null;
+		try (VirgilHash hash = new VirgilHash(Algorithm.SHA384)) {
+			for (int i = 0; i < ITERATIONS; i++) {
+				if (previousHash == null) {
+					previousHash = hash.hash(cardsData);
+				} else {
+					byte[] data = new byte[cardsData.length + previousHash.length];
+					System.arraycopy(cardsData, 0, data, 0, cardsData.length);
+					System.arraycopy(previousHash, 0, data, cardsData.length, previousHash.length);
 
-                    previousHash = hash.hash(data);
-                }
-            }
-        }
+					previousHash = hash.hash(data);
+				}
+			}
+		}
 
-        return hashToStr(previousHash);
-    }
+		return hashToStr(previousHash);
+	}
 
-    private static String hashToStr(byte[] hash) {
-        if (hash == null) {
-            throw new NullArgumentException("hash");
-        }
-        if (hash.length != 48) {
-            throw new IllegalArgumentException("Invalid hash length.");
-        }
+	private static String hashToStr(byte[] hash) {
+		if (hash == null) {
+			throw new NullArgumentException("hash");
+		}
+		if (hash.length != 48) {
+			throw new IllegalArgumentException("Invalid hash length.");
+		}
 
-        StringBuilder res = new StringBuilder();
-        for (int index = 0; index < hash.length; index += 4) {
-            int endIndex = index + 4;
+		StringBuilder res = new StringBuilder();
+		for (int index = 0; index < hash.length; index += 4) {
+			int endIndex = index + 4;
 
-            ByteBuffer buffer = ByteBuffer.wrap(Arrays.copyOfRange(hash, index, endIndex));
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
-            long num = buffer.getInt() & 0x00000000ffffffffL;
-            num = num % 100000;
-            res.append(String.format("%05d ", num));
-        }
+			ByteBuffer buffer = ByteBuffer.wrap(Arrays.copyOfRange(hash, index, endIndex));
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
+			long num = buffer.getInt() & 0x00000000ffffffffL;
+			num = num % 100000;
+			res.append(String.format("%05d ", num));
+		}
 
-        return res.substring(0, res.length() - 1);
-    }
+		return res.substring(0, res.length() - 1);
+	}
 
 }

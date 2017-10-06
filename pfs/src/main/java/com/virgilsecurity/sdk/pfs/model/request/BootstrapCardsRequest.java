@@ -54,18 +54,18 @@ public class BootstrapCardsRequest {
     }
 
     /**
+     * @return the oneTimeCards
+     */
+    public List<SignableRequestModel> getOneTimeCards() {
+        return oneTimeCards;
+    }
+
+    /**
      * @param longTimeCard
      *            the longTimeCard to set
      */
     public void setLongTimeCard(SignableRequestModel longTimeCard) {
         this.longTimeCard = longTimeCard;
-    }
-
-    /**
-     * @return the oneTimeCards
-     */
-    public List<SignableRequestModel> getOneTimeCards() {
-        return oneTimeCards;
     }
 
     /**

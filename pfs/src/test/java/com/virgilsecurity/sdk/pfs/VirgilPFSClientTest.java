@@ -58,7 +58,7 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.pfs.model.RecipientCardsSet;
 import com.virgilsecurity.sdk.pfs.model.request.CreateEphemeralCardRequest;
 import com.virgilsecurity.sdk.pfs.model.response.BootstrapCardsResponse;
-import com.virgilsecurity.sdk.pfs.model.response.OtcCountResponse;
+import com.virgilsecurity.sdk.pfs.model.response.CardStatus;
 
 /**
  * @author Andrii Iakovenko
@@ -121,7 +121,7 @@ public class VirgilPFSClientTest extends BaseIT {
         assertNotNull(cardsSets);
         assertTrue(cardsSets.isEmpty());
 
-        OtcCountResponse otcCount = pfsClient.getOtcCount(aliceCard.getId());
+        CardStatus otcCount = pfsClient.getCardStatus(aliceCard.getId());
         assertNotNull(otcCount);
         assertEquals(0, otcCount.getActive());
 
@@ -218,7 +218,7 @@ public class VirgilPFSClientTest extends BaseIT {
         assertNotNull(cardsSets);
         assertTrue(cardsSets.isEmpty());
 
-        OtcCountResponse otcCount = pfsClient.getOtcCount(aliceCard.getId());
+        CardStatus otcCount = pfsClient.getCardStatus(aliceCard.getId());
         assertNotNull(otcCount);
         assertEquals(0, otcCount.getActive());
 

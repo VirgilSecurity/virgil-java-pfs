@@ -78,26 +78,6 @@ public class SessionStateResolver {
 		return fields;
 	}
 
-	public static boolean isInitiatorSessionState(String json) {
-		JsonObject jsObj = (JsonObject) new JsonParser().parse(json);
-		for (String fieldName : INITIATOR_SESSION_STATE_FIELDS) {
-			if (!jsObj.has(fieldName)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	public static boolean isResponderSessionState(String json) {
-		JsonObject jsObj = (JsonObject) new JsonParser().parse(json);
-		for (String fieldName : RESPONDER_SESSION_STATE_FIELDS) {
-			if (!jsObj.has(fieldName)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	public static boolean isInitiationMessage(String json) {
 		JsonElement jsonEl = new JsonParser().parse(json);
 		if (!jsonEl.isJsonObject()) {
@@ -112,6 +92,16 @@ public class SessionStateResolver {
 		return true;
 	}
 
+	public static boolean isInitiatorSessionState(String json) {
+		JsonObject jsObj = (JsonObject) new JsonParser().parse(json);
+		for (String fieldName : INITIATOR_SESSION_STATE_FIELDS) {
+			if (!jsObj.has(fieldName)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public static boolean isRegularMessage(String json) {
 		JsonElement jsonEl = new JsonParser().parse(json);
 		if (!jsonEl.isJsonObject()) {
@@ -119,6 +109,16 @@ public class SessionStateResolver {
 		}
 		JsonObject jsObj = (JsonObject) jsonEl;
 		for (String fieldName : REGULAR_MESSAGE_FIELDS) {
+			if (!jsObj.has(fieldName)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public static boolean isResponderSessionState(String json) {
+		JsonObject jsObj = (JsonObject) new JsonParser().parse(json);
+		for (String fieldName : RESPONDER_SESSION_STATE_FIELDS) {
 			if (!jsObj.has(fieldName)) {
 				return false;
 			}

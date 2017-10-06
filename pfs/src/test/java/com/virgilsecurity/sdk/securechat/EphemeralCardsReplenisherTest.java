@@ -23,7 +23,7 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.pfs.BaseIT;
 import com.virgilsecurity.sdk.pfs.VirgilPFSClient;
 import com.virgilsecurity.sdk.pfs.VirgilPFSClientContext;
-import com.virgilsecurity.sdk.pfs.model.response.OtcCountResponse;
+import com.virgilsecurity.sdk.pfs.model.response.CardStatus;
 import com.virgilsecurity.sdk.securechat.keystorage.JsonFileKeyStorage;
 import com.virgilsecurity.sdk.securechat.keystorage.KeyAttrs;
 import com.virgilsecurity.sdk.securechat.keystorage.KeyStorage;
@@ -89,7 +89,7 @@ public class EphemeralCardsReplenisherTest extends BaseIT {
 		assertEquals(desiredNumber1, keyAttrs.get("ot").size());
 		assertEquals(1, keyAttrs.get("lt").size());
 
-		OtcCountResponse status = pfsClient.getOtcCount(cardId);
+		CardStatus status = pfsClient.getCardStatus(cardId);
 		assertEquals(desiredNumber1, status.getActive());
 
 		cardsReplenisher.addCards(true, desiredNumber2);
@@ -97,7 +97,7 @@ public class EphemeralCardsReplenisherTest extends BaseIT {
 		assertEquals(desiredNumber1 + desiredNumber2, keyAttrs.get("ot").size());
 		assertEquals(2, keyAttrs.get("lt").size());
 
-		status = pfsClient.getOtcCount(cardId);
+		status = pfsClient.getCardStatus(cardId);
 		assertEquals(desiredNumber1 + desiredNumber2, status.getActive());
 
 		cardsReplenisher.addCards(false, desiredNumber3);
@@ -105,7 +105,7 @@ public class EphemeralCardsReplenisherTest extends BaseIT {
 		assertEquals(desiredNumber1 + desiredNumber2 + desiredNumber3, keyAttrs.get("ot").size());
 		assertEquals(2, keyAttrs.get("lt").size());
 
-		status = pfsClient.getOtcCount(cardId);
+		status = pfsClient.getCardStatus(cardId);
 		assertEquals(desiredNumber1 + desiredNumber2 + desiredNumber3, status.getActive());
 	}
 

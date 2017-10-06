@@ -13,42 +13,6 @@ import com.google.gson.annotations.SerializedName;
  */
 public class ExhaustInfo {
 
-	@SerializedName("otc")
-	private List<ExhaustInfoEntry> otc;
-
-	@SerializedName("ltc")
-	private List<ExhaustInfoEntry> ltc;
-
-	@SerializedName("sessions")
-	private List<SessionExhaustInfo> sessions;
-
-	/**
-	 * 
-	 */
-	public ExhaustInfo() {
-		otc = new ArrayList<>();
-		ltc = new ArrayList<>();
-		sessions = new ArrayList<>();
-	}
-
-	/**
-	 * @param otc
-	 * @param ltc
-	 * @param sessions
-	 */
-	public ExhaustInfo(List<ExhaustInfoEntry> otc, List<ExhaustInfoEntry> ltc, List<SessionExhaustInfo> sessions) {
-		this();
-		if (otc != null) {
-			this.otc = otc;
-		}
-		if (ltc != null) {
-			this.ltc = ltc;
-		}
-		if (sessions != null) {
-			this.sessions = sessions;
-		}
-	}
-
 	public static class ExhaustInfoEntry {
 		@SerializedName("identifier")
 		private String identifier;
@@ -80,20 +44,6 @@ public class ExhaustInfo {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see java.lang.Object#hashCode()
-		 */
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((exhaustDate == null) ? 0 : exhaustDate.hashCode());
-			result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
-			return result;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
 		 * @see java.lang.Object#equals(java.lang.Object)
 		 */
 		@Override
@@ -119,25 +69,31 @@ public class ExhaustInfo {
 		}
 
 		/**
+		 * @return the exhaustDate
+		 */
+		public Date getExhaustDate() {
+			return exhaustDate;
+		}
+
+		/**
 		 * @return the identifier
 		 */
 		public String getIdentifier() {
 			return identifier;
 		}
 
-		/**
-		 * @param identifier
-		 *            the identifier to set
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#hashCode()
 		 */
-		public void setIdentifier(String identifier) {
-			this.identifier = identifier;
-		}
-
-		/**
-		 * @return the exhaustDate
-		 */
-		public Date getExhaustDate() {
-			return exhaustDate;
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((exhaustDate == null) ? 0 : exhaustDate.hashCode());
+			result = prime * result + ((identifier == null) ? 0 : identifier.hashCode());
+			return result;
 		}
 
 		/**
@@ -146,6 +102,14 @@ public class ExhaustInfo {
 		 */
 		public void setExhaustDate(Date exhaustDate) {
 			this.exhaustDate = exhaustDate;
+		}
+
+		/**
+		 * @param identifier
+		 *            the identifier to set
+		 */
+		public void setIdentifier(String identifier) {
+			this.identifier = identifier;
 		}
 	}
 
@@ -186,21 +150,6 @@ public class ExhaustInfo {
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see java.lang.Object#hashCode()
-		 */
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((cardId == null) ? 0 : cardId.hashCode());
-			result = prime * result + ((exhaustDate == null) ? 0 : exhaustDate.hashCode());
-			result = prime * result + Arrays.hashCode(identifier);
-			return result;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
 		 * @see java.lang.Object#equals(java.lang.Object)
 		 */
 		@Override
@@ -228,25 +177,39 @@ public class ExhaustInfo {
 		}
 
 		/**
+		 * @return the cardId
+		 */
+		public String getCardId() {
+			return cardId;
+		}
+
+		/**
+		 * @return the exhaustDate
+		 */
+		public Date getExhaustDate() {
+			return exhaustDate;
+		}
+
+		/**
 		 * @return the identifier
 		 */
 		public byte[] getIdentifier() {
 			return identifier;
 		}
 
-		/**
-		 * @param identifier
-		 *            the identifier to set
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#hashCode()
 		 */
-		public void setIdentifier(byte[] identifier) {
-			this.identifier = identifier;
-		}
-
-		/**
-		 * @return the cardId
-		 */
-		public String getCardId() {
-			return cardId;
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((cardId == null) ? 0 : cardId.hashCode());
+			result = prime * result + ((exhaustDate == null) ? 0 : exhaustDate.hashCode());
+			result = prime * result + Arrays.hashCode(identifier);
+			return result;
 		}
 
 		/**
@@ -258,13 +221,6 @@ public class ExhaustInfo {
 		}
 
 		/**
-		 * @return the exhaustDate
-		 */
-		public Date getExhaustDate() {
-			return exhaustDate;
-		}
-
-		/**
 		 * @param exhaustDate
 		 *            the exhaustDate to set
 		 */
@@ -272,6 +228,57 @@ public class ExhaustInfo {
 			this.exhaustDate = exhaustDate;
 		}
 
+		/**
+		 * @param identifier
+		 *            the identifier to set
+		 */
+		public void setIdentifier(byte[] identifier) {
+			this.identifier = identifier;
+		}
+
+	}
+
+	@SerializedName("otc")
+	private List<ExhaustInfoEntry> otc;
+
+	@SerializedName("ltc")
+	private List<ExhaustInfoEntry> ltc;
+
+	@SerializedName("sessions")
+	private List<SessionExhaustInfo> sessions;
+
+	/**
+	 * 
+	 */
+	public ExhaustInfo() {
+		otc = new ArrayList<>();
+		ltc = new ArrayList<>();
+		sessions = new ArrayList<>();
+	}
+
+	/**
+	 * @param otc
+	 * @param ltc
+	 * @param sessions
+	 */
+	public ExhaustInfo(List<ExhaustInfoEntry> otc, List<ExhaustInfoEntry> ltc, List<SessionExhaustInfo> sessions) {
+		this();
+		if (otc != null) {
+			this.otc = otc;
+		}
+		if (ltc != null) {
+			this.ltc = ltc;
+		}
+		if (sessions != null) {
+			this.sessions = sessions;
+		}
+	}
+
+	/**
+	 * @return the ltc
+	 */
+	public List<ExhaustInfoEntry> getLtc() {
+		return ltc;
 	}
 
 	/**
@@ -282,18 +289,10 @@ public class ExhaustInfo {
 	}
 
 	/**
-	 * @param otc
-	 *            the otc to set
+	 * @return the sessions
 	 */
-	public void setOtc(List<ExhaustInfoEntry> otc) {
-		this.otc = otc;
-	}
-
-	/**
-	 * @return the ltc
-	 */
-	public List<ExhaustInfoEntry> getLtc() {
-		return ltc;
+	public List<SessionExhaustInfo> getSessions() {
+		return sessions;
 	}
 
 	/**
@@ -305,10 +304,11 @@ public class ExhaustInfo {
 	}
 
 	/**
-	 * @return the sessions
+	 * @param otc
+	 *            the otc to set
 	 */
-	public List<SessionExhaustInfo> getSessions() {
-		return sessions;
+	public void setOtc(List<ExhaustInfoEntry> otc) {
+		this.otc = otc;
 	}
 
 	/**

@@ -89,18 +89,31 @@ public class InitiationMessage {
     }
 
     /**
+     * @return the cipherText
+     */
+    public byte[] getCipherText() {
+        return cipherText;
+    }
+
+    /**
+     * @return the ephPublicKey
+     */
+    public byte[] getEphPublicKey() {
+        return ephPublicKey;
+    }
+
+    /**
+     * @return the ephPublicKeySignature
+     */
+    public byte[] getEphPublicKeySignature() {
+        return ephPublicKeySignature;
+    }
+
+    /**
      * @return the initiatorIcId
      */
     public String getInitiatorIcId() {
         return initiatorIcId;
-    }
-
-    /**
-     * @param initiatorIcId
-     *            the initiatorIcId to set
-     */
-    public void setInitiatorIcId(String initiatorIcId) {
-        this.initiatorIcId = initiatorIcId;
     }
 
     /**
@@ -111,26 +124,10 @@ public class InitiationMessage {
     }
 
     /**
-     * @param responderIcId
-     *            the responderIcId to set
-     */
-    public void setResponderIcId(String responderIcId) {
-        this.responderIcId = responderIcId;
-    }
-
-    /**
      * @return the responderLtcId
      */
     public String getResponderLtcId() {
         return responderLtcId;
-    }
-
-    /**
-     * @param responderLtcId
-     *            the responderLtcId to set
-     */
-    public void setResponderLtcId(String responderLtcId) {
-        this.responderLtcId = responderLtcId;
     }
 
     /**
@@ -141,18 +138,18 @@ public class InitiationMessage {
     }
 
     /**
-     * @param responderOtcId
-     *            the responderOtcId to set
+     * @return the salt
      */
-    public void setResponderOtcId(String responderOtcId) {
-        this.responderOtcId = responderOtcId;
+    public byte[] getSalt() {
+        return salt;
     }
 
     /**
-     * @return the ephPublicKey
+     * @param cipherText
+     *            the cipherText to set
      */
-    public byte[] getEphPublicKey() {
-        return ephPublicKey;
+    public void setCipherText(byte[] cipherText) {
+        this.cipherText = cipherText;
     }
 
     /**
@@ -164,13 +161,6 @@ public class InitiationMessage {
     }
 
     /**
-     * @return the ephPublicKeySignature
-     */
-    public byte[] getEphPublicKeySignature() {
-        return ephPublicKeySignature;
-    }
-
-    /**
      * @param ephPublicKeySignature
      *            the ephPublicKeySignature to set
      */
@@ -179,10 +169,35 @@ public class InitiationMessage {
     }
 
     /**
-     * @return the salt
+     * @param initiatorIcId
+     *            the initiatorIcId to set
      */
-    public byte[] getSalt() {
-        return salt;
+    public void setInitiatorIcId(String initiatorIcId) {
+        this.initiatorIcId = initiatorIcId;
+    }
+
+    /**
+     * @param responderIcId
+     *            the responderIcId to set
+     */
+    public void setResponderIcId(String responderIcId) {
+        this.responderIcId = responderIcId;
+    }
+
+    /**
+     * @param responderLtcId
+     *            the responderLtcId to set
+     */
+    public void setResponderLtcId(String responderLtcId) {
+        this.responderLtcId = responderLtcId;
+    }
+
+    /**
+     * @param responderOtcId
+     *            the responderOtcId to set
+     */
+    public void setResponderOtcId(String responderOtcId) {
+        this.responderOtcId = responderOtcId;
     }
 
     /**
@@ -191,21 +206,6 @@ public class InitiationMessage {
      */
     public void setSalt(byte[] salt) {
         this.salt = salt;
-    }
-
-    /**
-     * @return the cipherText
-     */
-    public byte[] getCipherText() {
-        return cipherText;
-    }
-
-    /**
-     * @param cipherText
-     *            the cipherText to set
-     */
-    public void setCipherText(byte[] cipherText) {
-        this.cipherText = cipherText;
     }
 
 }

@@ -59,7 +59,6 @@ import com.virgilsecurity.sdk.client.VirgilClient;
 import com.virgilsecurity.sdk.client.exceptions.CardValidationException;
 import com.virgilsecurity.sdk.client.model.CardModel;
 import com.virgilsecurity.sdk.client.requests.PublishCardRequest;
-import com.virgilsecurity.sdk.crypto.Crypto;
 import com.virgilsecurity.sdk.crypto.KeyPair;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
@@ -92,9 +91,8 @@ public class SecureChatTest extends BaseIT {
 	private static final String MESSAGE4 = "Message 4";
 	private static final String MESSAGE5 = "Message 5";
 	private static final String MESSAGE6 = "Message 6";
-
+	
 	private VirgilPFSClientContext ctx;
-	private Crypto crypto;
 	private VirgilClient client;
 	private VirgilPFSClient pfsClient;
 	private RequestSigner requestSigner;

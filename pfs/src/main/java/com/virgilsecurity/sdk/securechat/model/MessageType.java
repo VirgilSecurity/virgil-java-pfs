@@ -37,6 +37,15 @@ public enum MessageType {
 
     UNKNOWN("unknown"), INITIAL("initial"), REGULAR("regular");
 
+    public static MessageType fromString(String value) {
+        for (MessageType theType : MessageType.values()) {
+            if (theType.getCode().equalsIgnoreCase(value)) {
+                return theType;
+            }
+        }
+        return MessageType.UNKNOWN;
+    }
+
     private String code;
 
     /**
@@ -53,15 +62,6 @@ public enum MessageType {
      */
     public String getCode() {
         return code;
-    }
-
-    public static MessageType fromString(String value) {
-        for (MessageType theType : MessageType.values()) {
-            if (theType.getCode().equalsIgnoreCase(value)) {
-                return theType;
-            }
-        }
-        return MessageType.UNKNOWN;
     }
 
 }

@@ -7,6 +7,7 @@ import com.virgilsecurity.sdk.crypto.Crypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.securechat.KeyStorageManager;
 import com.virgilsecurity.sdk.securechat.UserDataStorage;
+import com.virgilsecurity.sdk.securechat.exceptions.MigrationException;
 import com.virgilsecurity.sdk.securechat.keystorage.KeyStorage;
 import com.virgilsecurity.sdk.securechat.migration.v1_1.MigrationV1_1;
 import com.virgilsecurity.sdk.securechat.session.SessionInitializer;
@@ -51,12 +52,13 @@ public class MigrationManager {
 		this.sessionManager = sessionManager;
 	}
 
-	public void migrateToV1_1() {
+	public void migrateToV1_1() throws MigrationException {
 		log.fine("Migrating to 1.1");
 
 		MigrationV1_1 migration = new MigrationV1_1(this.crypto, this.identityPrivateKey, this.identityCard,
 				this.keyStorage, this.keyStorageManager, this.storage, this.sessionInitializer, this.sessionManager);
 
+		migration.migrateKeyStorage();
 		migration.migrate();
 	}
 }

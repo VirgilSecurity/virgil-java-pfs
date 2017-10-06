@@ -1,3 +1,32 @@
+/*
+ * Copyright (c) 2017, Virgil Security, Inc.
+ *
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * * Neither the name of virgil nor the names of its
+ *   contributors may be used to endorse or promote products derived from
+ *   this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.virgilsecurity.sdk.securechat;
 
 import java.lang.reflect.Type;
@@ -35,8 +64,44 @@ public class SessionStorageManager {
 		this.storage = storage;
 	}
 
-	private String getSessionsEntryKey() {
-		return String.format("VIRGIL.SESSIONSV2.OWNER=%s", this.cardId);
+	public void addSessionState(SessionState sessionState, String recipientCardId) {
+		String sessionIdStr = ConvertionUtils.toBase64String(sessionState.getSessionId());
+		log.fine(String.format("Adding session state for: %s, sessionId: %s", recipientCardId, sessionIdStr));
+
+		synchronized (storage) {
+			Map<String, Map<String, SessionState>> sessionStates = loadSessionStates(this.getSessionsEntryKey());
+			Map<String, SessionState> recipientEntry = sessionStates.get(recipientCardId);
+			if (recipientEntry == null) {
+				recipientEntry = new HashMap<>();
+				sessionStates.put(recipientCardId, recipientEntry);
+			}
+			recipientEntry.put(sessionIdStr, sessionState);
+
+			this.storage.addData(this.cardId, this.getSessionsEntryKey(),
+					getGson().toJson(sessionStates));
+		}
+	}
+
+	public List<Entry<String, SessionState>> getAllSessionsStates() {
+		log.fine("Getting all session's states");
+		List<Entry<String, SessionState>> allSessionStates = new LinkedList<>();
+
+		Map<String, Map<String, SessionState>> sessionStates = loadSessionStates(this.getSessionsEntryKey());
+		for (Entry<String, Map<String, SessionState>> recipientStatesEntry : sessionStates.entrySet()) {
+			String recipientCardId = recipientStatesEntry.getKey();
+			for (SessionState sessionState : recipientStatesEntry.getValue().values()) {
+				allSessionStates.add(new AbstractMap.SimpleEntry(recipientCardId, sessionState));
+			}
+		}
+		return allSessionStates;
+	}
+
+	private Gson getGson() {
+		if (this.gson == null) {
+			GsonBuilder builder = new GsonBuilder();
+			gson = builder.disableHtmlEscaping().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
+		}
+		return gson;
 	}
 
 	public SessionState getNewestSessionState(String recipientCardId) {
@@ -53,6 +118,10 @@ public class SessionStorageManager {
 			}
 		}
 		return newestState;
+	}
+
+	private String getSessionsEntryKey() {
+		return String.format("VIRGIL.SESSIONSV2.OWNER=%s", this.cardId);
 	}
 
 	public SessionState getSessionState(String recipientCardId, byte[] sessionId) {
@@ -77,54 +146,25 @@ public class SessionStorageManager {
 		return sessionIds;
 	}
 
-	public List<Entry<String, SessionState>> getAllSessionsStates() {
-		log.fine("Getting all session's states");
-		List<Entry<String, SessionState>> allSessionStates = new LinkedList<>();
-
+	private Map<String, SessionState> loadRecipientSessions(String recipientCardId) {
 		Map<String, Map<String, SessionState>> sessionStates = loadSessionStates(this.getSessionsEntryKey());
-		for (Entry<String, Map<String, SessionState>> recipientStatesEntry : sessionStates.entrySet()) {
-			String recipientCardId = recipientStatesEntry.getKey();
-			for (SessionState sessionState : recipientStatesEntry.getValue().values()) {
-				allSessionStates.add(new AbstractMap.SimpleEntry(recipientCardId, sessionState));
-			}
+		Map<String, SessionState> recipientStates = sessionStates.get(recipientCardId);
+		if (recipientStates == null) {
+			recipientStates = new HashMap<>();
 		}
-		return allSessionStates;
+		return recipientStates;
 	}
 
-	public void addSessionState(SessionState sessionState, String recipientCardId) {
-		String sessionIdStr = ConvertionUtils.toBase64String(sessionState.getSessionId());
-		log.fine(String.format("Adding session state for: %s, sessionId: %s", recipientCardId, sessionIdStr));
-
-		synchronized (storage) {
-			Map<String, Map<String, SessionState>> sessionStates = loadSessionStates(this.getSessionsEntryKey());
-			Map<String, SessionState> recipientEntry = sessionStates.get(recipientCardId);
-			if (recipientEntry == null) {
-				recipientEntry = new HashMap<>();
-				sessionStates.put(recipientCardId, recipientEntry);
-			}
-			recipientEntry.put(sessionIdStr, sessionState);
-
-			this.storage.addData(this.cardId, this.getSessionsEntryKey(),
-					getGson().toJson(sessionStates));
+	private Map<String, Map<String, SessionState>> loadSessionStates(String sessionEntryKey) {
+		String entry = storage.getData(this.cardId, this.getSessionsEntryKey());
+		if (StringUtils.isBlank(entry)) {
+			return new HashMap<>();
 		}
-	}
+		Type mapType = new TypeToken<Map<String, Map<String, SessionState>>>() {
+		}.getType();
+		Map<String, Map<String, SessionState>> sessionStates = getGson().fromJson(entry, mapType);
 
-	public void removeSessionState(String recipientCardId, byte[] sessionId) {
-		String sessionIdStr = ConvertionUtils.toBase64String(sessionId);
-		log.fine(String.format("Removing session state for: %s, sessionId: %s", recipientCardId, sessionIdStr));
-
-		synchronized (storage) {
-			Map<String, Map<String, SessionState>> sessionStates = loadSessionStates(this.getSessionsEntryKey());
-			Map<String, SessionState> recipientEntry = sessionStates.get(recipientCardId);
-			if (recipientEntry == null) {
-				// TODO throw exception if session not found
-				return;
-			}
-			recipientEntry.remove(sessionIdStr);
-
-			this.storage.addData(this.cardId, this.getSessionsEntryKey(),
-					getGson().toJson(sessionStates));
-		}
+		return sessionStates;
 	}
 
 	public void removeSessionsStates(List<Entry<String, byte[]>> pairs) {
@@ -148,32 +188,21 @@ public class SessionStorageManager {
 		}
 	}
 
-	private Map<String, Map<String, SessionState>> loadSessionStates(String sessionEntryKey) {
-		String entry = storage.getData(this.cardId, this.getSessionsEntryKey());
-		if (StringUtils.isBlank(entry)) {
-			return new HashMap<>();
-		}
-		Type mapType = new TypeToken<Map<String, Map<String, SessionState>>>() {
-		}.getType();
-		Map<String, Map<String, SessionState>> sessionStates = getGson().fromJson(entry, mapType);
+	public void removeSessionState(String recipientCardId, byte[] sessionId) {
+		String sessionIdStr = ConvertionUtils.toBase64String(sessionId);
+		log.fine(String.format("Removing session state for: %s, sessionId: %s", recipientCardId, sessionIdStr));
 
-		return sessionStates;
-	}
+		synchronized (storage) {
+			Map<String, Map<String, SessionState>> sessionStates = loadSessionStates(this.getSessionsEntryKey());
+			Map<String, SessionState> recipientEntry = sessionStates.get(recipientCardId);
+			if (recipientEntry == null) {
+				// TODO throw exception if session not found
+				return;
+			}
+			recipientEntry.remove(sessionIdStr);
 
-	private Map<String, SessionState> loadRecipientSessions(String recipientCardId) {
-		Map<String, Map<String, SessionState>> sessionStates = loadSessionStates(this.getSessionsEntryKey());
-		Map<String, SessionState> recipientStates = sessionStates.get(recipientCardId);
-		if (recipientStates == null) {
-			recipientStates = new HashMap<>();
+			this.storage.addData(this.cardId, this.getSessionsEntryKey(),
+					getGson().toJson(sessionStates));
 		}
-		return recipientStates;
-	}
-
-	private Gson getGson() {
-		if (this.gson == null) {
-			GsonBuilder builder = new GsonBuilder();
-			gson = builder.disableHtmlEscaping().setDateFormat("yyyy-MM-dd HH:mm:ss.SSS").create();
-		}
-		return gson;
 	}
 }

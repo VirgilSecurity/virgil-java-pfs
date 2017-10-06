@@ -1,3 +1,32 @@
+/*
+ * Copyright (c) 2017, Virgil Security, Inc.
+ *
+ * All rights reserved.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * * Redistributions of source code must retain the above copyright notice, this
+ *   list of conditions and the following disclaimer.
+ *
+ * * Redistributions in binary form must reproduce the above copyright notice,
+ *   this list of conditions and the following disclaimer in the documentation
+ *   and/or other materials provided with the distribution.
+ *
+ * * Neither the name of virgil nor the names of its
+ *   contributors may be used to endorse or promote products derived from
+ *   this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.virgilsecurity.sdk.securechat.session;
 
 import java.util.Arrays;
@@ -34,6 +63,10 @@ import com.virgilsecurity.sdk.securechat.utils.ArrayUtils;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 
+/**
+ * @author Andrii Iakovenko
+ *
+ */
 public class SessionManager {
 	private static final Logger log = Logger.getLogger(KeysRotator.class.getName());
 
@@ -100,24 +133,9 @@ public class SessionManager {
 		}
 	}
 
-	public void wipeCache() {
-		this.loadUpCache = new HashMap<>();
-		this.activeSessionCache = new HashMap<>();
-	}
-
-	public void saveSession(SecureSession session, Date creationDate, String participantCardId) {
-		byte[] sessionId = session.getIdentifier();
-		byte[] encryptionKey = session.getEncryptionKey();
-		byte[] decryptionKey = session.getDecryptionKey();
-
-		SessionKeys sessionKeys = new KeyStorageManager.SessionKeys(encryptionKey, decryptionKey);
-
-		this.keyStorageManager.saveSessionKeys(sessionKeys, sessionId);
-
-		SessionState sessionState = new SessionState(session.getIdentifier(), creationDate, session.getExpirationDate(),
-				session.getAdditionalData());
-
-		this.sessionStorageManager.addSessionState(sessionState, participantCardId);
+	private void addNewSessionToCache(SecureSession session, String cardId) {
+		this.loadUpCache.put(session.getIdentifier(), session);
+		this.activeSessionCache.put(cardId, session);
 	}
 
 	public void checkExistingSessionOnStart(String recipientCardId) {
@@ -137,23 +155,78 @@ public class SessionManager {
 		}
 	}
 
-	public SecureSession loadSession(String recipientCardId, byte[] sessionId) throws SessionManagerException {
-		// Look for cached value
-		SecureSession session = this.loadUpCache.get(sessionId);
-		if (session != null) {
-			return session;
+	public void gentleReset() {
+		log.fine(String.format("SessionManager: %s. Gentle reset started", this.identityCard.getId()));
+
+		List<Entry<String, SessionState>> sessionStates = this.sessionStorageManager.getAllSessionsStates();
+
+		for (Entry<String, SessionState> sessionState : sessionStates) {
+			this.removeSessions(sessionState.getKey());
 		}
 
-		SessionState sessionState = this.sessionStorageManager.getSessionState(recipientCardId, sessionId);
-		if (sessionState == null || !Arrays.equals(sessionState.getSessionId(), sessionId)) {
-			throw new SessionManagerException(Constants.Errors.SessionManager.SESSION_NOT_FOUND, "Session not found.");
+		this.removeAllKeys();
+	}
+
+	public SecureSession initializeInitiatorSession(CardModel recipientCard, RecipientCardsSet cardsSet,
+			byte[] additionalData) throws SessionManagerException {
+		if (cardsSet.getOneTimeCard() == null) {
+			log.warning("WARNING: Creating weak session with " + recipientCard.getId());
 		}
 
-		session = this.recoverSession(this.identityCard, sessionState);
+		String identityCardId = recipientCard.getId();
+		byte[] identityPublicKeyData = recipientCard.getSnapshotModel().getPublicKeyData();
+		byte[] longTermPublicKeyData = cardsSet.getLongTermCard().getSnapshotModel().getPublicKeyData();
 
-		this.loadUpCache.put(sessionId, session);
+		byte[] oneTimePublicKeyData = null;
+		if (cardsSet.getOneTimeCard() != null) {
+			oneTimePublicKeyData = cardsSet.getOneTimeCard().getSnapshotModel().getPublicKeyData();
+		}
 
-		return session;
+		KeyPair ephKeyPair = this.crypto.generateKeys();
+		PrivateKey ephPrivateKey = ephKeyPair.getPrivateKey();
+
+		EphemeralCardValidator validator = new EphemeralCardValidator(this.crypto);
+
+		try {
+			validator.addVerifier(identityCardId, identityPublicKeyData);
+		} catch (Exception e) {
+			throw new SessionManagerException(Constants.Errors.SessionManager.ADD_VERIFIER,
+					"Error while adding verifier.", e);
+		}
+
+		if (!validator.validate(cardsSet.getLongTermCard())) {
+			throw new SessionManagerException(Constants.Errors.SessionManager.LONG_TERM_CARD_VALIDATION,
+					"Responder LongTerm card validation failed.");
+		}
+
+		if (cardsSet.getOneTimeCard() != null) {
+			if (!validator.validate(cardsSet.getOneTimeCard())) {
+				throw new SessionManagerException(Constants.Errors.SessionManager.ONE_TIME_CARD_VALIDATION,
+						"Responder OneTime card validation failed.");
+			}
+		}
+
+		CardEntry identityCardEntry = new CardEntry(identityCardId, identityPublicKeyData);
+		CardEntry ltCardEntry = new CardEntry(cardsSet.getLongTermCard().getId(), longTermPublicKeyData);
+
+		CardEntry otCardEntry = null;
+		if (cardsSet.getOneTimeCard() != null && oneTimePublicKeyData != null) {
+			otCardEntry = new CardEntry(cardsSet.getOneTimeCard().getId(), oneTimePublicKeyData);
+		}
+
+		Calendar cal = Calendar.getInstance();
+		Date creationDate = cal.getTime();
+		cal.add(Calendar.SECOND, this.sessionTtl);
+		Date expirationDate = cal.getTime();
+
+		SecureSession secureSession = this.sessionInitializer.initializeInitiatorSession(ephPrivateKey,
+				identityCardEntry, ltCardEntry, otCardEntry, additionalData, expirationDate);
+
+		this.saveSession(secureSession, creationDate, recipientCard.getId());
+
+		this.addNewSessionToCache(secureSession, identityCardEntry.getIdentifier());
+
+		return secureSession;
 	}
 
 	public SecureSession initializeResponderSession(CardEntry initiatorCardEntry, InitiationMessage initiationMessage,
@@ -219,78 +292,40 @@ public class SessionManager {
 		return secureSession;
 	}
 
-	public SecureSession initializeInitiatorSession(CardModel recipientCard, RecipientCardsSet cardsSet,
-			byte[] additionalData) throws SessionManagerException {
-		if (cardsSet.getOneTimeCard() == null) {
-			log.warning("WARNING: Creating weak session with " + recipientCard.getId());
+	public SecureSession loadSession(String recipientCardId, byte[] sessionId) throws SessionManagerException {
+		// Look for cached value
+		SecureSession session = this.loadUpCache.get(sessionId);
+		if (session != null) {
+			return session;
 		}
 
-		String identityCardId = recipientCard.getId();
-		byte[] identityPublicKeyData = recipientCard.getSnapshotModel().getPublicKeyData();
-		byte[] longTermPublicKeyData = cardsSet.getLongTermCard().getSnapshotModel().getPublicKeyData();
-
-		byte[] oneTimePublicKeyData = null;
-		if (cardsSet.getOneTimeCard() != null) {
-			oneTimePublicKeyData = cardsSet.getOneTimeCard().getSnapshotModel().getPublicKeyData();
+		SessionState sessionState = this.sessionStorageManager.getSessionState(recipientCardId, sessionId);
+		if (sessionState == null || !Arrays.equals(sessionState.getSessionId(), sessionId)) {
+			throw new SessionManagerException(Constants.Errors.SessionManager.SESSION_NOT_FOUND, "Session not found.");
 		}
 
-		KeyPair ephKeyPair = this.crypto.generateKeys();
-		PrivateKey ephPrivateKey = ephKeyPair.getPrivateKey();
+		session = this.recoverSession(this.identityCard, sessionState);
 
-		EphemeralCardValidator validator = new EphemeralCardValidator(this.crypto);
+		this.loadUpCache.put(sessionId, session);
 
-		try {
-			validator.addVerifier(identityCardId, identityPublicKeyData);
-		} catch (Exception e) {
-			throw new SessionManagerException(Constants.Errors.SessionManager.ADD_VERIFIER,
-					"Error while adding verifier.", e);
-		}
-
-		if (!validator.validate(cardsSet.getLongTermCard())) {
-			throw new SessionManagerException(Constants.Errors.SessionManager.LONG_TERM_CARD_VALIDATION,
-					"Responder LongTerm card validation failed.");
-		}
-
-		if (cardsSet.getOneTimeCard() != null) {
-			if (!validator.validate(cardsSet.getOneTimeCard())) {
-				throw new SessionManagerException(Constants.Errors.SessionManager.ONE_TIME_CARD_VALIDATION,
-						"Responder OneTime card validation failed.");
-			}
-		}
-
-		CardEntry identityCardEntry = new CardEntry(identityCardId, identityPublicKeyData);
-		CardEntry ltCardEntry = new CardEntry(cardsSet.getLongTermCard().getId(), longTermPublicKeyData);
-
-		CardEntry otCardEntry = null;
-		if (cardsSet.getOneTimeCard() != null && oneTimePublicKeyData != null) {
-			otCardEntry = new CardEntry(cardsSet.getOneTimeCard().getId(), oneTimePublicKeyData);
-		}
-
-		Calendar cal = Calendar.getInstance();
-		Date creationDate = cal.getTime();
-		cal.add(Calendar.SECOND, this.sessionTtl);
-		Date expirationDate = cal.getTime();
-
-		SecureSession secureSession = this.sessionInitializer.initializeInitiatorSession(ephPrivateKey,
-				identityCardEntry, ltCardEntry, otCardEntry, additionalData, expirationDate);
-
-		this.saveSession(secureSession, creationDate, recipientCard.getId());
-
-		this.addNewSessionToCache(secureSession, identityCardEntry.getIdentifier());
-
-		return secureSession;
+		return session;
 	}
 
-	public void gentleReset() {
-		log.fine(String.format("SessionManager: %s. Gentle reset started", this.identityCard.getId()));
+	private SecureSession recoverSession(CardModel myIdentityCard, SessionState sessionState) {
+		String sessionIdStr = ConvertionUtils.toBase64String(sessionState.getSessionId());
+		log.fine(String.format("SessionManager: %s. Recovering session: %s", this.identityCard.getId(), sessionIdStr));
 
-		List<Entry<String, SessionState>> sessionStates = this.sessionStorageManager.getAllSessionsStates();
+		SessionKeys sessionKeys = this.keyStorageManager.getSessionKeys(sessionState.getSessionId());
 
-		for (Entry<String, SessionState> sessionState : sessionStates) {
-			this.removeSessions(sessionState.getKey());
-		}
+		return this.sessionInitializer.initializeSavedSession(sessionState.getSessionId(),
+				sessionKeys.getEncryptionKey(), sessionKeys.getDecryptionKey(), sessionState.getAdditionalData(),
+				sessionState.getExpirationDate());
+	}
 
-		this.removeAllKeys();
+	private void removeAllKeys() {
+		log.fine(String.format("SessionManager: %s. Removing all keys.", this.identityCard.getId()));
+
+		this.keyStorageManager.gentleReset();
 	}
 
 	/**
@@ -320,26 +355,12 @@ public class SessionManager {
 		}
 	}
 
-	private void addNewSessionToCache(SecureSession session, String cardId) {
-		this.loadUpCache.put(session.getIdentifier(), session);
-		this.activeSessionCache.put(cardId, session);
-	}
+	private void removeSessionKeys(byte[] sessionId) {
+		String sessionIdStr = ConvertionUtils.toBase64String(sessionId);
+		log.fine(String.format("SessionManager: %s. Removing session keys for: %s.", this.identityCard.getId(),
+				sessionIdStr));
 
-	private SecureSession recoverSession(CardModel myIdentityCard, SessionState sessionState) {
-		String sessionIdStr = ConvertionUtils.toBase64String(sessionState.getSessionId());
-		log.fine(String.format("SessionManager: %s. Recovering session: %s", this.identityCard.getId(), sessionIdStr));
-
-		SessionKeys sessionKeys = this.keyStorageManager.getSessionKeys(sessionState.getSessionId());
-
-		return this.sessionInitializer.initializeSavedSession(sessionState.getSessionId(),
-				sessionKeys.getEncryptionKey(), sessionKeys.getDecryptionKey(), sessionState.getAdditionalData(),
-				sessionState.getExpirationDate());
-	}
-
-	private void removeAllKeys() {
-		log.fine(String.format("SessionManager: %s. Removing all keys.", this.identityCard.getId()));
-
-		this.keyStorageManager.gentleReset();
+		this.keyStorageManager.removeSessionKeys(sessionId);
 	}
 
 	/**
@@ -357,24 +378,24 @@ public class SessionManager {
 		}
 	}
 
-	private void removeSessionKeys(String cardId) throws SessionManagerException {
-		log.fine(
-				String.format("SessionManager: %s. Removing session keys for: %s.", this.identityCard.getId(), cardId));
+	public void saveSession(SecureSession session, Date creationDate, String participantCardId) {
+		byte[] sessionId = session.getIdentifier();
+		byte[] encryptionKey = session.getEncryptionKey();
+		byte[] decryptionKey = session.getDecryptionKey();
 
-		try {
-			this.keyStorageManager.removeOtPrivateKey(cardId);
-		} catch (Exception e) {
-			throw new SessionManagerException(Constants.Errors.SessionManager.REMOVING_OT_KEY,
-					"Error while removing ot key", e);
-		}
+		SessionKeys sessionKeys = new KeyStorageManager.SessionKeys(encryptionKey, decryptionKey);
+
+		this.keyStorageManager.saveSessionKeys(sessionKeys, sessionId);
+
+		SessionState sessionState = new SessionState(session.getIdentifier(), creationDate, session.getExpirationDate(),
+				session.getAdditionalData());
+
+		this.sessionStorageManager.addSessionState(sessionState, participantCardId);
 	}
 
-	private void removeSessionKeys(byte[] sessionId) {
-		String sessionIdStr = ConvertionUtils.toBase64String(sessionId);
-		log.fine(String.format("SessionManager: %s. Removing session keys for: %s.", this.identityCard.getId(),
-				sessionIdStr));
-
-		this.keyStorageManager.removeSessionKeys(sessionId);
+	public void wipeCache() {
+		this.loadUpCache = new HashMap<>();
+		this.activeSessionCache = new HashMap<>();
 	}
 
 }

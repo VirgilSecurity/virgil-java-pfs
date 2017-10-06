@@ -27,27 +27,44 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.securechat;
+package com.virgilsecurity.sdk.securechat.exceptions;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import com.virgilsecurity.sdk.securechat.migration.MigrationManager;
 
 /**
+ * This exception in throw in data model migration failed. See
+ * {@link MigrationManager}.
+ * 
  * @author Andrii Iakovenko
  *
  */
-public class SecureChatCardsHelperTest {
-    
-    @Test
-    @Ignore
-    public void generateRequest() {
-        
-    }
-    
-    @Test
-    @Ignore
-    public void addCards() {
-        
-    }
+public class MigrationException extends SecureChatException {
+	private static final long serialVersionUID = 6287455033149095841L;
+
+	/**
+	 * Create new instance of {@link MigrationException}.
+	 * 
+	 * @param code
+	 *            the error code.
+	 * @param message
+	 *            the error message.
+	 */
+	public MigrationException(int code, String message) {
+		super(code, message);
+	}
+
+	/**
+	 * Create new instance of {@link MigrationException}.
+	 * 
+	 * @param code
+	 *            the error code.
+	 * @param message
+	 *            the message.
+	 * @param cause
+	 *            the cause.
+	 */
+	public MigrationException(int code, String message, Throwable cause) {
+		super(code, message, cause);
+	}
 
 }

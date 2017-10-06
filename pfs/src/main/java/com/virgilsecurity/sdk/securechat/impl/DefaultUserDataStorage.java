@@ -36,72 +36,87 @@ import java.util.Map;
 import com.virgilsecurity.sdk.securechat.UserDataStorage;
 
 /**
+ * The in-memory implementation of user data storage.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class DefaultUserDataStorage implements UserDataStorage {
 
-    private Map<String, Map<String, String>> defaults;
+	private Map<String, Map<String, String>> defaults;
 
-    /**
-     * Create new instance of {@link DefaultUserDataStorage}.
-     */
-    public DefaultUserDataStorage() {
-        defaults = Collections.synchronizedMap(new HashMap<String, Map<String, String>>());
-    }
+	/**
+	 * Create new instance of {@link DefaultUserDataStorage}.
+	 */
+	public DefaultUserDataStorage() {
+		defaults = Collections.synchronizedMap(new HashMap<String, Map<String, String>>());
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.securechat.UserDataStorage#getAllData(java.lang.String)
-     */
-    @Override
-    public Map<String, String> getAllData(String storageName) {
-        if (defaults.containsKey(storageName)) {
-            return defaults.get(storageName);
-        }
-        Map<String, String> data = Collections.synchronizedMap(new HashMap<String, String>());
-        defaults.put(storageName, data);
-        return data;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.virgilsecurity.sdk.securechat.UserDataStorage#addData(java.lang.
+	 * String, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public void addData(String storageName, String key, String value) {
+		getAllData(storageName).put(key, value);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.securechat.UserDataStorage#getData(java.lang.String, java.lang.String)
-     */
-    @Override
-    public String getData(String storageName, String key) {
-        return getAllData(storageName).get(key);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.virgilsecurity.sdk.securechat.UserDataStorage#getAllData(java.lang.
+	 * String)
+	 */
+	@Override
+	public Map<String, String> getAllData(String storageName) {
+		if (defaults.containsKey(storageName)) {
+			Map<String, String> data = defaults.get(storageName);
+			return data;
+		}
+		Map<String, String> data = Collections.synchronizedMap(new HashMap<String, String>());
+		defaults.put(storageName, data);
+		return data;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.securechat.UserDataStorage#addData(java.lang.String, java.lang.String,
-     * java.lang.String)
-     */
-    @Override
-    public void addData(String storageName, String key, String value) {
-        getAllData(storageName).put(key, value);
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.virgilsecurity.sdk.securechat.UserDataStorage#getData(java.lang.
+	 * String, java.lang.String)
+	 */
+	@Override
+	public String getData(String storageName, String key) {
+		return getAllData(storageName).get(key);
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.securechat.UserDataStorage#removeData(java.lang.String, java.lang.String)
-     */
-    @Override
-    public void removeData(String storageName, String key) {
-        getAllData(storageName).remove(key);
-    }
+	@Override
+	public void removeAll(String storageName) {
+		defaults.remove(storageName);
+	}
 
-    /* (non-Javadoc)
-     * @see com.virgilsecurity.sdk.securechat.UserDataStorage#synchronize()
-     */
-    @Override
-    public void synchronize() {
-        // TODO Auto-generated method stub        
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.virgilsecurity.sdk.securechat.UserDataStorage#removeData(java.lang.
+	 * String, java.lang.String)
+	 */
+	@Override
+	public void removeData(String storageName, String key) {
+		getAllData(storageName).remove(key);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.virgilsecurity.sdk.securechat.UserDataStorage#synchronize()
+	 */
+	@Override
+	public void synchronize() {
+		// TODO Auto-generated method stub
+	}
 
 }

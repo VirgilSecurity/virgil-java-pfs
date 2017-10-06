@@ -68,66 +68,6 @@ public class Message {
         this.cipherText = cipherText;
     }
 
-    /**
-     * @return the sessionId
-     */
-    public byte[] getSessionId() {
-        return sessionId;
-    }
-
-    /**
-     * @param sessionId
-     *            the sessionId to set
-     */
-    public void setSessionId(byte[] sessionId) {
-        this.sessionId = sessionId;
-    }
-
-    /**
-     * @return the salt
-     */
-    public byte[] getSalt() {
-        return salt;
-    }
-
-    /**
-     * @param salt
-     *            the salt to set
-     */
-    public void setSalt(byte[] salt) {
-        this.salt = salt;
-    }
-
-    /**
-     * @return the cipherText
-     */
-    public byte[] getCipherText() {
-        return cipherText;
-    }
-
-    /**
-     * @param cipherText
-     *            the cipherText to set
-     */
-    public void setCipherText(byte[] cipherText) {
-        this.cipherText = cipherText;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + Arrays.hashCode(cipherText);
-        result = prime * result + Arrays.hashCode(salt);
-        result = prime * result + Arrays.hashCode(sessionId);
-        return result;
-    }
-
     /*
      * (non-Javadoc)
      * 
@@ -149,6 +89,66 @@ public class Message {
         if (!Arrays.equals(sessionId, other.sessionId))
             return false;
         return true;
+    }
+
+    /**
+     * @return the cipherText
+     */
+    public byte[] getCipherText() {
+        return cipherText;
+    }
+
+    /**
+     * @return the salt
+     */
+    public byte[] getSalt() {
+        return salt;
+    }
+
+    /**
+     * @return the sessionId
+     */
+    public byte[] getSessionId() {
+        return sessionId;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(cipherText);
+        result = prime * result + Arrays.hashCode(salt);
+        result = prime * result + Arrays.hashCode(sessionId);
+        return result;
+    }
+
+    /**
+     * @param cipherText
+     *            the cipherText to set
+     */
+    public void setCipherText(byte[] cipherText) {
+        this.cipherText = cipherText;
+    }
+
+    /**
+     * @param salt
+     *            the salt to set
+     */
+    public void setSalt(byte[] salt) {
+        this.salt = salt;
+    }
+
+    /**
+     * @param sessionId
+     *            the sessionId to set
+     */
+    public void setSessionId(byte[] sessionId) {
+        this.sessionId = sessionId;
     }
 
 }

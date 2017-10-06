@@ -27,26 +27,36 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.securechat.exceptions;
+package com.virgilsecurity.sdk.pfs.model.response;
 
-import com.virgilsecurity.sdk.client.exceptions.VirgilClientException;
+import com.google.gson.annotations.SerializedName;
 
 /**
  * @author Andrii Iakovenko
  *
  */
-public class StartNewSessionException extends VirgilClientException {
+public class CardStatus {
 
-    private static final long serialVersionUID = -8172887972476553536L;
+	@SerializedName("active")
+	private int active;
 
-    /**
-     * Create new instance of {@link StartNewSessionException}.
-     * 
-     * @param code
-     * @param message
-     */
-    public StartNewSessionException(int code, String message) {
-        super(code, message);
-    }
+	/**
+	 * Get active cards amount.
+	 * 
+	 * @return the active cards amount.
+	 */
+	public int getActive() {
+		return active;
+	}
+
+	/**
+	 * Set active cards amount.
+	 * 
+	 * @param active
+	 *            the active cards about.
+	 */
+	public void setActive(int active) {
+		this.active = active;
+	}
 
 }

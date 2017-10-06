@@ -77,105 +77,6 @@ public class SessionState implements Serializable {
 		this.additionalData = additionalData;
 	}
 
-	/**
-	 * Checks if session already expired.
-	 * 
-	 * @return {@code true} if session expired at the moment.
-	 */
-	public boolean isExpired() {
-		return isExpired(new Date());
-	}
-
-	/**
-	 * Checks if session expired to the date.
-	 * 
-	 * @param date
-	 *            the date.
-	 * @return {@code true} if session expired to the date {@code date}.
-	 */
-	public boolean isExpired(Date date) {
-		if (this.expirationDate == null) {
-			return false;
-		}
-		return this.expirationDate.before(date);
-	}
-
-	/**
-	 * @return the creationDate
-	 */
-	public Date getCreationDate() {
-		return creationDate;
-	}
-
-	/**
-	 * @param creationDate
-	 *            the creationDate to set
-	 */
-	public void setCreationDate(Date creationDate) {
-		this.creationDate = creationDate;
-	}
-
-	/**
-	 * @return the expirationDate
-	 */
-	public Date getExpirationDate() {
-		return expirationDate;
-	}
-
-	/**
-	 * @param expirationDate
-	 *            the expirationDate to set
-	 */
-	public void setExpirationDate(Date expirationDate) {
-		this.expirationDate = expirationDate;
-	}
-
-	/**
-	 * @return the sessionId
-	 */
-	public byte[] getSessionId() {
-		return sessionId;
-	}
-
-	/**
-	 * @param sessionId
-	 *            the sessionId to set
-	 */
-	public void setSessionId(byte[] sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	/**
-	 * @return the additionalData
-	 */
-	public byte[] getAdditionalData() {
-		return additionalData;
-	}
-
-	/**
-	 * @param additionalData
-	 *            the additionalData to set
-	 */
-	public void setAdditionalData(byte[] additionalData) {
-		this.additionalData = additionalData;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Arrays.hashCode(additionalData);
-		result = prime * result + ((creationDate == null) ? 0 : creationDate.hashCode());
-		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
-		result = prime * result + Arrays.hashCode(sessionId);
-		return result;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -205,6 +106,105 @@ public class SessionState implements Serializable {
 		if (!Arrays.equals(sessionId, other.sessionId))
 			return false;
 		return true;
+	}
+
+	/**
+	 * @return the additionalData
+	 */
+	public byte[] getAdditionalData() {
+		return additionalData;
+	}
+
+	/**
+	 * @return the creationDate
+	 */
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	/**
+	 * @return the expirationDate
+	 */
+	public Date getExpirationDate() {
+		return expirationDate;
+	}
+
+	/**
+	 * @return the sessionId
+	 */
+	public byte[] getSessionId() {
+		return sessionId;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(additionalData);
+		result = prime * result + ((creationDate == null) ? 0 : creationDate.hashCode());
+		result = prime * result + ((expirationDate == null) ? 0 : expirationDate.hashCode());
+		result = prime * result + Arrays.hashCode(sessionId);
+		return result;
+	}
+
+	/**
+	 * Checks if session already expired.
+	 * 
+	 * @return {@code true} if session expired at the moment.
+	 */
+	public boolean isExpired() {
+		return isExpired(new Date());
+	}
+
+	/**
+	 * Checks if session expired to the date.
+	 * 
+	 * @param date
+	 *            the date.
+	 * @return {@code true} if session expired to the date {@code date}.
+	 */
+	public boolean isExpired(Date date) {
+		if (this.expirationDate == null) {
+			return false;
+		}
+		return this.expirationDate.before(date);
+	}
+
+	/**
+	 * @param additionalData
+	 *            the additionalData to set
+	 */
+	public void setAdditionalData(byte[] additionalData) {
+		this.additionalData = additionalData;
+	}
+
+	/**
+	 * @param creationDate
+	 *            the creationDate to set
+	 */
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	/**
+	 * @param expirationDate
+	 *            the expirationDate to set
+	 */
+	public void setExpirationDate(Date expirationDate) {
+		this.expirationDate = expirationDate;
+	}
+
+	/**
+	 * @param sessionId
+	 *            the sessionId to set
+	 */
+	public void setSessionId(byte[] sessionId) {
+		this.sessionId = sessionId;
 	}
 
 }

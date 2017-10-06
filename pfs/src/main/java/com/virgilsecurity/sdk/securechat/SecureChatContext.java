@@ -85,15 +85,6 @@ public class SecureChatContext {
 		exhaustedOneTimeKeysTtl = 60 * 60 * 24; // One day
 	}
 
-	public SecureChatContext(CardModel myIdentityCard, PrivateKey myPrivateKey, Crypto crypto,
-			VirgilPFSClientContext context) {
-		this();
-		this.identityCard = myIdentityCard;
-		this.identityPrivateKey = myPrivateKey;
-		this.crypto = crypto;
-		this.context = context;
-	}
-
 	/**
 	 * Create new instance of {@link SecureChatContext}.
 	 * 
@@ -109,72 +100,13 @@ public class SecureChatContext {
 		this.context = new VirgilPFSClientContext(accessToken);
 	}
 
-	/**
-	 * Returns user's identity card.
-	 * 
-	 * @return the identityCard
-	 */
-	public CardModel getIdentityCard() {
-		return identityCard;
-	}
-
-	/**
-	 * @param identityCard
-	 *            the myIdentityCard to set
-	 */
-	public void setIdentityCard(CardModel identityCard) {
-		this.identityCard = identityCard;
-	}
-
-	/**
-	 * Returns user's private key that corresponds to his identity card on
-	 * Virgil Cards Service.
-	 * 
-	 * @return the identityPrivateKey
-	 */
-	public PrivateKey getIdentityPrivateKey() {
-		return identityPrivateKey;
-	}
-
-	/**
-	 * @param identityPrivateKey
-	 *            the privateKey to set
-	 */
-	public void setIdentityPrivateKey(PrivateKey privateKey) {
-		this.identityPrivateKey = privateKey;
-	}
-
-	/**
-	 * @return the crypto
-	 */
-	public Crypto getCrypto() {
-		return crypto;
-	}
-
-	/**
-	 * @param crypto
-	 *            the crypto to set
-	 */
-	public void setCrypto(Crypto crypto) {
+	public SecureChatContext(CardModel myIdentityCard, PrivateKey myPrivateKey, Crypto crypto,
+			VirgilPFSClientContext context) {
+		this();
+		this.identityCard = myIdentityCard;
+		this.identityPrivateKey = myPrivateKey;
 		this.crypto = crypto;
-	}
-
-	/**
-	 * KeyStorage implementation used to store private/symmetric keys needed for
-	 * PFS (default is JsonFileKeyStorage).
-	 * 
-	 * @return the keyStorage
-	 */
-	public KeyStorage getKeyStorage() {
-		return keyStorage;
-	}
-
-	/**
-	 * @param keyStorage
-	 *            the keyStorage to set
-	 */
-	public void setKeyStorage(KeyStorage keyStorage) {
-		this.keyStorage = keyStorage;
+		this.context = context;
 	}
 
 	/**
@@ -185,11 +117,10 @@ public class SecureChatContext {
 	}
 
 	/**
-	 * @param context
-	 *            the context to set
+	 * @return the crypto
 	 */
-	public void setContext(VirgilPFSClientContext context) {
-		this.context = context;
+	public Crypto getCrypto() {
+		return crypto;
 	}
 
 	/**
@@ -200,60 +131,10 @@ public class SecureChatContext {
 	}
 
 	/**
-	 * @param deviceManager
-	 *            the deviceManager to set
+	 * @return the exhaustedOneTimeKeysTtl
 	 */
-	public void setDeviceManager(DeviceManager deviceManager) {
-		this.deviceManager = deviceManager;
-	}
-
-	/**
-	 * @return the longTermKeysTtl
-	 */
-	public int getLongTermKeysTtl() {
-		return longTermKeysTtl;
-	}
-
-	/**
-	 * @param longTermKeysTtl
-	 *            the longTermKeysTtl to set
-	 */
-	public void setLongTermKeysTtl(int longTermKeysTtl) {
-		this.longTermKeysTtl = longTermKeysTtl;
-	}
-
-	/**
-	 * Get session time to live in seconds.
-	 * 
-	 * @return the session TTL.
-	 */
-	public int getSessionTtl() {
-		return sessionTtl;
-	}
-
-	/**
-	 * Set session time to live in seconds.
-	 * 
-	 * @param sessionTtl
-	 *            the session TTL.
-	 */
-	public void setSessionTtl(int sessionTtl) {
-		this.sessionTtl = sessionTtl;
-	}
-
-	/**
-	 * @return the user data storage.
-	 */
-	public UserDataStorage getUserDataStorage() {
-		return userDataStorage;
-	}
-
-	/**
-	 * @param userDataStorage
-	 *            the user data storage.
-	 */
-	public void setUserDataStorage(UserDataStorage userDataStorage) {
-		this.userDataStorage = userDataStorage;
+	public int getExhaustedOneTimeKeysTtl() {
+		return exhaustedOneTimeKeysTtl;
 	}
 
 	/**
@@ -271,10 +152,87 @@ public class SecureChatContext {
 	}
 
 	/**
-	 * @return the exhaustedOneTimeKeysTtl
+	 * Returns user's identity card.
+	 * 
+	 * @return the identityCard
 	 */
-	public int getExhaustedOneTimeKeysTtl() {
-		return exhaustedOneTimeKeysTtl;
+	public CardModel getIdentityCard() {
+		return identityCard;
+	}
+
+	/**
+	 * Returns user's private key that corresponds to his identity card on
+	 * Virgil Cards Service.
+	 * 
+	 * @return the identityPrivateKey
+	 */
+	public PrivateKey getIdentityPrivateKey() {
+		return identityPrivateKey;
+	}
+
+	/**
+	 * KeyStorage implementation used to store private/symmetric keys needed for
+	 * PFS (default is JsonFileKeyStorage).
+	 * 
+	 * @return the keyStorage
+	 */
+	public KeyStorage getKeyStorage() {
+		return keyStorage;
+	}
+
+	/**
+	 * @return the longTermKeysTtl
+	 */
+	public int getLongTermKeysTtl() {
+		return longTermKeysTtl;
+	}
+
+	/**
+	 * Get session time to live in seconds.
+	 * 
+	 * @return the session TTL.
+	 */
+	public int getSessionTtl() {
+		return sessionTtl;
+	}
+
+	/**
+	 * @return the user data storage.
+	 */
+	public UserDataStorage getUserDataStorage() {
+		return userDataStorage;
+	}
+
+	/**
+	 * @param context
+	 *            the context to set
+	 */
+	public void setContext(VirgilPFSClientContext context) {
+		this.context = context;
+	}
+
+	/**
+	 * @param crypto
+	 *            the crypto to set
+	 */
+	public void setCrypto(Crypto crypto) {
+		this.crypto = crypto;
+	}
+
+	/**
+	 * @param deviceManager
+	 *            the deviceManager to set
+	 */
+	public void setDeviceManager(DeviceManager deviceManager) {
+		this.deviceManager = deviceManager;
+	}
+
+	/**
+	 * @param exhaustedOneTimeKeysTtl
+	 *            the exhaustedOneTimeKeysTtl to set
+	 */
+	public void setExhaustedOneTimeKeysTtl(int exhaustedOneTimeKeysTtl) {
+		this.exhaustedOneTimeKeysTtl = exhaustedOneTimeKeysTtl;
 	}
 
 	/**
@@ -294,11 +252,53 @@ public class SecureChatContext {
 	}
 
 	/**
-	 * @param exhaustedOneTimeKeysTtl
-	 *            the exhaustedOneTimeKeysTtl to set
+	 * @param identityCard
+	 *            the myIdentityCard to set
 	 */
-	public void setExhaustedOneTimeKeysTtl(int exhaustedOneTimeKeysTtl) {
-		this.exhaustedOneTimeKeysTtl = exhaustedOneTimeKeysTtl;
+	public void setIdentityCard(CardModel identityCard) {
+		this.identityCard = identityCard;
+	}
+
+	/**
+	 * @param privateKey
+	 *            the privateKey to set
+	 */
+	public void setIdentityPrivateKey(PrivateKey privateKey) {
+		this.identityPrivateKey = privateKey;
+	}
+
+	/**
+	 * @param keyStorage
+	 *            the keyStorage to set
+	 */
+	public void setKeyStorage(KeyStorage keyStorage) {
+		this.keyStorage = keyStorage;
+	}
+
+	/**
+	 * @param longTermKeysTtl
+	 *            the longTermKeysTtl to set
+	 */
+	public void setLongTermKeysTtl(int longTermKeysTtl) {
+		this.longTermKeysTtl = longTermKeysTtl;
+	}
+
+	/**
+	 * Set session time to live in seconds.
+	 * 
+	 * @param sessionTtl
+	 *            the session TTL.
+	 */
+	public void setSessionTtl(int sessionTtl) {
+		this.sessionTtl = sessionTtl;
+	}
+
+	/**
+	 * @param userDataStorage
+	 *            the user data storage.
+	 */
+	public void setUserDataStorage(UserDataStorage userDataStorage) {
+		this.userDataStorage = userDataStorage;
 	}
 
 }
