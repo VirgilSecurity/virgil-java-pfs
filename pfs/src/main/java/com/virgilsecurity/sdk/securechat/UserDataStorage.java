@@ -37,12 +37,14 @@ import java.util.Map;
  */
 public interface UserDataStorage {
 
+    void addData(String storageName, String key, String value);
+
     Map<String, String> getAllData(String storageName);
 
     String getData(String storageName, String key);
 
-    void addData(String storageName, String key, String value);
-
+    void removeAll(String storageName);
+    
     void removeData(String storageName, String key);
 
     void synchronize();

@@ -78,18 +78,39 @@ public class ResponderSessionState extends SessionState {
     }
 
     /**
+     * @return the recipientIdentityCardId
+     */
+    public String getRecipientIdentityCardId() {
+        return recipientIdentityCardId;
+    }
+
+    /**
+     * @return the recipientIdentityPublicKey
+     */
+    public byte[] getRecipientIdentityPublicKey() {
+        return recipientIdentityPublicKey;
+    }
+
+    /**
+     * @return the recipientLongTermCardId
+     */
+    public String getRecipientLongTermCardId() {
+        return recipientLongTermCardId;
+    }
+
+    /**
+     * @return the recipientOneTimeCardId
+     */
+    public String getRecipientOneTimeCardId() {
+        return recipientOneTimeCardId;
+    }
+
+    /**
      * @param ephPublicKeyData
      *            the ephPublicKeyData to set
      */
     public void setEphPublicKeyData(byte[] ephPublicKeyData) {
         this.ephPublicKeyData = ephPublicKeyData;
-    }
-
-    /**
-     * @return the recipientIdentityCardId
-     */
-    public String getRecipientIdentityCardId() {
-        return recipientIdentityCardId;
     }
 
     /**
@@ -101,13 +122,6 @@ public class ResponderSessionState extends SessionState {
     }
 
     /**
-     * @return the recipientIdentityPublicKey
-     */
-    public byte[] getRecipientIdentityPublicKey() {
-        return recipientIdentityPublicKey;
-    }
-
-    /**
      * @param recipientIdentityPublicKey
      *            the recipientIdentityPublicKey to set
      */
@@ -116,25 +130,11 @@ public class ResponderSessionState extends SessionState {
     }
 
     /**
-     * @return the recipientLongTermCardId
-     */
-    public String getRecipientLongTermCardId() {
-        return recipientLongTermCardId;
-    }
-
-    /**
      * @param recipientLongTermCardId
      *            the recipientLongTermCardId to set
      */
     public void setRecipientLongTermCardId(String recipientLongTermCardId) {
         this.recipientLongTermCardId = recipientLongTermCardId;
-    }
-
-    /**
-     * @return the recipientOneTimeCardId
-     */
-    public String getRecipientOneTimeCardId() {
-        return recipientOneTimeCardId;
     }
 
     /**

@@ -40,60 +40,75 @@ import com.virgilsecurity.sdk.client.requests.PublishCardRequest;
  */
 public class CreateEphemeralCardRequest extends PublishCardRequest {
 
-    /**
-     * Create new instance of {@link CreateEphemeralCardRequest}.
-     * 
-     * @param snapshot
-     * @param signatures
-     */
-    public CreateEphemeralCardRequest(byte[] snapshot, Map<String, byte[]> signatures) {
-        super(snapshot, signatures);
-    }
+	/**
+	 * Create new instance of {@link CreateEphemeralCardRequest}.
+	 * 
+	 * @param snapshot
+	 *            the snapshot of the {@link CreateEphemeralCardRequest}.
+	 * @param signatures
+	 *            the signatures.
+	 */
+	public CreateEphemeralCardRequest(byte[] snapshot, Map<String, byte[]> signatures) {
+		super(snapshot, signatures);
+	}
 
-    /**
-     * Create new instance of {@link CreateEphemeralCardRequest}.
-     * 
-     * @param identity
-     * @param identityType
-     * @param publicKeyData
-     * @param info
-     * @param customFields
-     */
-    public CreateEphemeralCardRequest(String identity, String identityType, byte[] publicKeyData, CardInfoModel info,
-            Map<String, String> customFields) {
-        super(identity, identityType, publicKeyData, info, customFields);
-    }
+	/**
+	 * Create new instance of {@link CreateEphemeralCardRequest}.
+	 * 
+	 * @param stringifiedRequest
+	 *            the stringified request.
+	 */
+	public CreateEphemeralCardRequest(String stringifiedRequest) {
+		super(stringifiedRequest);
+	}
 
-    /**
-     * Create new instance of {@link CreateEphemeralCardRequest}.
-     * 
-     * @param identity
-     * @param identityType
-     * @param publicKeyData
-     * @param info
-     */
-    public CreateEphemeralCardRequest(String identity, String identityType, byte[] publicKeyData, CardInfoModel info) {
-        super(identity, identityType, publicKeyData, info);
-    }
+	/**
+	 * Create new instance of {@link CreateEphemeralCardRequest}.
+	 * 
+	 * @param identity
+	 *            the identity.
+	 * @param identityType
+	 *            the identity type.
+	 * @param publicKeyData
+	 *            the public key DER.
+	 */
+	public CreateEphemeralCardRequest(String identity, String identityType, byte[] publicKeyData) {
+		super(identity, identityType, publicKeyData);
+	}
 
-    /**
-     * Create new instance of {@link CreateEphemeralCardRequest}.
-     * 
-     * @param identity
-     * @param identityType
-     * @param publicKeyData
-     */
-    public CreateEphemeralCardRequest(String identity, String identityType, byte[] publicKeyData) {
-        super(identity, identityType, publicKeyData);
-    }
+	/**
+	 * Create new instance of {@link CreateEphemeralCardRequest}.
+	 * 
+	 * @param identity
+	 *            the identity.
+	 * @param identityType
+	 *            the identity type.
+	 * @param publicKeyData
+	 *            the public key DER.
+	 * @param info
+	 *            the card information.
+	 */
+	public CreateEphemeralCardRequest(String identity, String identityType, byte[] publicKeyData, CardInfoModel info) {
+		super(identity, identityType, publicKeyData, info);
+	}
 
-    /**
-     * Create new instance of {@link CreateEphemeralCardRequest}.
-     * 
-     * @param stringifiedRequest
-     */
-    public CreateEphemeralCardRequest(String stringifiedRequest) {
-        super(stringifiedRequest);
-    }
+	/**
+	 * Create new instance of {@link CreateEphemeralCardRequest}.
+	 * 
+	 * @param identity
+	 *            the identity.
+	 * @param identityType
+	 *            the identity type.
+	 * @param publicKeyData
+	 *            the public key DER.
+	 * @param info
+	 *            the card information.
+	 * @param customFields
+	 *            the card custom fields.
+	 */
+	public CreateEphemeralCardRequest(String identity, String identityType, byte[] publicKeyData, CardInfoModel info,
+			Map<String, String> customFields) {
+		super(identity, identityType, publicKeyData, info, customFields);
+	}
 
 }

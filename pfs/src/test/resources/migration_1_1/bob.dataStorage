@@ -1,0 +1,5 @@
+{
+	"VIRGIL.DEFAULTS.bb81ef619008587d1caf03bdd2ea9cd087a4cfcd68d1956f6888b26b5ffa58e0": {
+		"VIRGIL.SESSION.e0a4db241866faf24494eb73fb739baee2e2a6fb209211e53e606866ab46abb1": "{\"eph_public_key_data\":\"MCowBQYDK2VwAyEAJrQjnKbGKZ4ZCXHTg9Ms0kSrFs7ZJn9oXeEcC9DMUPQ=\",\"recipient_identity_card_id\":\"e0a4db241866faf24494eb73fb739baee2e2a6fb209211e53e606866ab46abb1\",\"recipient_identity_public_key\":\"MCowBQYDK2VwAyEAj26OfueFDB0+HtJTkePzJXvRsiNtZRJ7J6e213227QE=\",\"recipient_long_term_card_id\":\"805071fec2c6cb109606c756062d260bbe05c183209f02fdd027baf1e51ed1b8\",\"recipient_one_time_card_id\":\"2118d9be7efa2b4b5a6f50bb8b984a5dcc9f2f9bfe2cc8ca8d0f17c6e2d641fc\",\"creation_date\":\"Oct 8, 2017 4:25:35 PM\",\"expiration_date\":\"Oct 9, 2017 4:25:35 PM\",\"session_id\":\"MTLQvU82MN8Fc/bKLkZDDRAfMTtBiOiQoTgMeGRl644=\",\"additional_data\":null}"
+	}
+}

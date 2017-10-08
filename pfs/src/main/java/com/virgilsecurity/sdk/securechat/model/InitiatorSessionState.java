@@ -41,6 +41,13 @@ public class InitiatorSessionState extends SessionState {
 
     private static final long serialVersionUID = 1579806110665130516L;
 
+    /**
+     * @return the serialversionuid
+     */
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+
     @SerializedName("eph_key_name")
     private String ephKeyName;
 
@@ -58,10 +65,10 @@ public class InitiatorSessionState extends SessionState {
 
     @SerializedName("recipient_one_time_card_id")
     private String recipientOneTimeCardId;
-
+    
     @SerializedName("recipient_one_time_public_key")
     private byte[] recipientOneTimePublicKey;
-    
+
     public InitiatorSessionState() {
     }
 
@@ -87,18 +94,53 @@ public class InitiatorSessionState extends SessionState {
     }
 
     /**
+     * @return the recipientCardId
+     */
+    public String getRecipientCardId() {
+        return recipientCardId;
+    }
+
+    /**
+     * @return the recipientLongTermCardId
+     */
+    public String getRecipientLongTermCardId() {
+        return recipientLongTermCardId;
+    }
+
+    /**
+     * @return the recipientLongTermPublicKey
+     */
+    public byte[] getRecipientLongTermPublicKey() {
+        return recipientLongTermPublicKey;
+    }
+
+    /**
+     * @return the recipientOneTimeCardId
+     */
+    public String getRecipientOneTimeCardId() {
+        return recipientOneTimeCardId;
+    }
+
+    /**
+     * @return the recipientOneTimePublicKey
+     */
+    public byte[] getRecipientOneTimePublicKey() {
+        return recipientOneTimePublicKey;
+    }
+
+    /**
+     * @return the recipientPublicKey
+     */
+    public byte[] getRecipientPublicKey() {
+        return recipientPublicKey;
+    }
+
+    /**
      * @param ephKeyName
      *            the ephKeyName to set
      */
     public void setEphKeyName(String ephKeyName) {
         this.ephKeyName = ephKeyName;
-    }
-
-    /**
-     * @return the recipientCardId
-     */
-    public String getRecipientCardId() {
-        return recipientCardId;
     }
 
     /**
@@ -110,40 +152,11 @@ public class InitiatorSessionState extends SessionState {
     }
 
     /**
-     * @return the recipientPublicKey
-     */
-    public byte[] getRecipientPublicKey() {
-        return recipientPublicKey;
-    }
-
-    /**
-     * @param recipientPublicKey
-     *            the recipientPublicKey to set
-     */
-    public void setRecipientPublicKey(byte[] recipientPublicKey) {
-        this.recipientPublicKey = recipientPublicKey;
-    }
-
-    /**
-     * @return the recipientLongTermCardId
-     */
-    public String getRecipientLongTermCardId() {
-        return recipientLongTermCardId;
-    }
-
-    /**
      * @param recipientLongTermCardId
      *            the recipientLongTermCardId to set
      */
     public void setRecipientLongTermCardId(String recipientLongTermCardId) {
         this.recipientLongTermCardId = recipientLongTermCardId;
-    }
-
-    /**
-     * @return the recipientLongTermPublicKey
-     */
-    public byte[] getRecipientLongTermPublicKey() {
-        return recipientLongTermPublicKey;
     }
 
     /**
@@ -155,25 +168,11 @@ public class InitiatorSessionState extends SessionState {
     }
 
     /**
-     * @return the recipientOneTimeCardId
-     */
-    public String getRecipientOneTimeCardId() {
-        return recipientOneTimeCardId;
-    }
-
-    /**
      * @param recipientOneTimeCardId
      *            the recipientOneTimeCardId to set
      */
     public void setRecipientOneTimeCardId(String recipientOneTimeCardId) {
         this.recipientOneTimeCardId = recipientOneTimeCardId;
-    }
-
-    /**
-     * @return the recipientOneTimePublicKey
-     */
-    public byte[] getRecipientOneTimePublicKey() {
-        return recipientOneTimePublicKey;
     }
 
     /**
@@ -185,10 +184,11 @@ public class InitiatorSessionState extends SessionState {
     }
 
     /**
-     * @return the serialversionuid
+     * @param recipientPublicKey
+     *            the recipientPublicKey to set
      */
-    public static long getSerialversionuid() {
-        return serialVersionUID;
+    public void setRecipientPublicKey(byte[] recipientPublicKey) {
+        this.recipientPublicKey = recipientPublicKey;
     }
 
 }

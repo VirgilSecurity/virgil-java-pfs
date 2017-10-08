@@ -54,18 +54,18 @@ public class BootstrapCardsResponse {
     }
 
     /**
+     * @return the oneTimeCards
+     */
+    public List<CardModel> getOneTimeCards() {
+        return oneTimeCards;
+    }
+
+    /**
      * @param longTimeCard
      *            the longTimeCard to set
      */
     public void setLongTimeCard(CardModel longTimeCard) {
         this.longTimeCard = longTimeCard;
-    }
-
-    /**
-     * @return the oneTimeCards
-     */
-    public List<CardModel> getOneTimeCards() {
-        return oneTimeCards;
     }
 
     /**

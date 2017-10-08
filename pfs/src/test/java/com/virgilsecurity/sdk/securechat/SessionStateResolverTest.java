@@ -34,6 +34,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.virgilsecurity.sdk.securechat.model.InitiationMessage;
 import com.virgilsecurity.sdk.securechat.model.InitiatorSessionState;
 import com.virgilsecurity.sdk.securechat.model.ResponderSessionState;
 import com.virgilsecurity.sdk.securechat.utils.GsonUtils;
@@ -44,37 +45,53 @@ import com.virgilsecurity.sdk.securechat.utils.SessionStateResolver;
  *
  */
 public class SessionStateResolverTest {
-    
-    @Test
-    public void isInitiatorSessionState_nullFields() {
-        InitiatorSessionState state = new InitiatorSessionState();
-        
-        String json = GsonUtils.getGson().toJson(state);
-        assertTrue(SessionStateResolver.isInitiatorSessionState(json));
-    }
-    
-    @Test
-    public void isInitiatorSessionState_false() {
-        ResponderSessionState state = new ResponderSessionState();
-        
-        String json = GsonUtils.getGson().toJson(state);
-        assertFalse(SessionStateResolver.isInitiatorSessionState(json));
-    }
-    
-    @Test
-    public void isResponderSessionState_nullFields() {
-        ResponderSessionState state = new ResponderSessionState();
-        
-        String json = GsonUtils.getGson().toJson(state);
-        assertTrue(SessionStateResolver.isResponderSessionState(json));
-    }
-    
-    @Test
-    public void isResponderSessionState_false() {
-        InitiatorSessionState state = new InitiatorSessionState();
-        
-        String json = GsonUtils.getGson().toJson(state);
-        assertFalse(SessionStateResolver.isResponderSessionState(json));
-    }
+
+	@Test
+	public void isInitiatorSessionState_nullFields() {
+		InitiatorSessionState state = new InitiatorSessionState();
+
+		String json = GsonUtils.getGson().toJson(state);
+		assertTrue(SessionStateResolver.isInitiatorSessionState(json));
+	}
+
+	@Test
+	public void isInitiatorSessionState_false() {
+		ResponderSessionState state = new ResponderSessionState();
+
+		String json = GsonUtils.getGson().toJson(state);
+		assertFalse(SessionStateResolver.isInitiatorSessionState(json));
+	}
+
+	@Test
+	public void isResponderSessionState_nullFields() {
+		ResponderSessionState state = new ResponderSessionState();
+
+		String json = GsonUtils.getGson().toJson(state);
+		assertTrue(SessionStateResolver.isResponderSessionState(json));
+	}
+
+	@Test
+	public void isResponderSessionState_false() {
+		InitiatorSessionState state = new InitiatorSessionState();
+
+		String json = GsonUtils.getGson().toJson(state);
+		assertFalse(SessionStateResolver.isResponderSessionState(json));
+	}
+
+	@Test
+	public void isInitiationMessage() {
+		InitiationMessage message = new InitiationMessage(TestUtils.generateCardId(), TestUtils.generateCardId(),
+				TestUtils.generateCardId(), TestUtils.generateCardId(), TestUtils.generateBytes(100),
+				TestUtils.generateBytes(20), TestUtils.generateBytes(16), TestUtils.generateBytes(100));
+
+		String json = GsonUtils.getGson().toJson(message);
+		assertTrue(SessionStateResolver.isInitiationMessage(json));
+	}
+
+	@Test
+	public void isInitiationMessage_nullOtc() {
+		String json = "{\"initiator_ic_id\":\"630d64d6-975b-4782-ba27-fde70296d3be\",\"responder_ic_id\":\"8424e6b1-e541-4822-b279-ac27a0a0ecc9\",\"responder_ltc_id\":\"10aaebf1-da25-4491-81f9-80a02d5345ad\",\"eph\":\"JXU/E3qfaB2qFlMFoTgRBiCa9PDRelsE475wwQl03BEwALYW6Y2EY20+fe6HlOBjYO+Pv9q3VS9AEdCYjnn4jMiCtQFJggq6r9JDXp+k1402I3OPRbFF/Kny9FdIf8jGCoj70g==\",\"sign\":\"s8YTVjDRcjSZUD5WNkoA5JdPRgg=\",\"salt\":\"kJYE/udJfHQfM29jpZ5/GQ==\",\"ciphertext\":\"o9tsBMX96ogJTbnV7LqLJYr65hI+Er94oKjSAMORlYqJbhnoFbL3a99c1TtyWDCMtwFMhQ31rMsBp1d8uO406zOpjSFblXXJjcfGMt023W15pHbhZb6jvssjvw0ZjEip970cgw==\"}";
+		assertTrue(SessionStateResolver.isInitiationMessage(json));
+	}
 
 }

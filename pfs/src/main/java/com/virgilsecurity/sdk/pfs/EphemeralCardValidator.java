@@ -39,52 +39,73 @@ import com.virgilsecurity.sdk.crypto.Fingerprint;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 
 /**
+ * This Virgil Card validator is used for cards verification ephemeral card
+ * vefirication.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class EphemeralCardValidator {
 
-    private Crypto crypto;
-    private Map<String, PublicKey> verifiers;
+	private Crypto crypto;
+	private Map<String, PublicKey> verifiers;
 
-    /**
-     * Create new instance of {@link EphemeralCardValidator}.
-     * 
-     * @param crypto
-     */
-    public EphemeralCardValidator(Crypto crypto) {
-        this.crypto = crypto;
-        this.verifiers = new HashMap<>();
-    }
+	/**
+	 * Create new instance of {@link EphemeralCardValidator}.
+	 * 
+	 * @param crypto
+	 *            the {@link Crypto} which is used for crypto operations.
+	 */
+	public EphemeralCardValidator(Crypto crypto) {
+		this.crypto = crypto;
+		this.verifiers = new HashMap<>();
+	}
 
-    public void addVerifier(String verifierId, byte[] publicKeyData) {
-        PublicKey publicKey = this.crypto.importPublicKey(publicKeyData);
+	/**
+	 * Add new verifier which is used for Virgil Card validation. In common case
+	 * it's a Virgil Card identifier and public key pair.
+	 * 
+	 * @param verifierId
+	 *            the verifier's identifier.
+	 * @param publicKeyData
+	 *            the verifier's public key.
+	 */
+	public void addVerifier(String verifierId, byte[] publicKeyData) {
+		PublicKey publicKey = this.crypto.importPublicKey(publicKeyData);
 
-        this.verifiers.put(verifierId, publicKey);
-    }
+		this.verifiers.put(verifierId, publicKey);
+	}
 
-    public boolean validate(CardModel card) {
-        Fingerprint fingerprint = this.crypto.calculateFingerprint(card.getSnapshot());
-        String cardId = fingerprint.toHex();
+	/**
+	 * Validate Virgil Card.
+	 * 
+	 * @param card
+	 *            the Virgil Card to be validated.
+	 * @return {@code true} if card is valid. {@code false} if validation failed
+	 *         for some reason.
+	 */
+	public boolean validate(CardModel card) {
+		Fingerprint fingerprint = this.crypto.calculateFingerprint(card.getSnapshot());
+		String cardId = fingerprint.toHex();
 
-        if (!cardId.equals(card.getId())) {
-            return false;
-        }
+		if (!cardId.equals(card.getId())) {
+			return false;
+		}
 
-        for (Entry<String, PublicKey> verifier : this.verifiers.entrySet()) {
+		for (Entry<String, PublicKey> verifier : this.verifiers.entrySet()) {
 
-            if (!card.getMeta().getSignatures().containsKey(verifier.getKey())) {
-                return false;
-            }
-            byte[] signature = card.getMeta().getSignatures().get(verifier.getKey());
-            try {
-                this.crypto.verify(fingerprint.getValue(), signature, verifier.getValue());
-            } catch (Exception e) {
-                return false;
-            }
-        }
+			if (!card.getMeta().getSignatures().containsKey(verifier.getKey())) {
+				return false;
+			}
+			byte[] signature = card.getMeta().getSignatures().get(verifier.getKey());
+			try {
+				return this.crypto.verify(fingerprint.getValue(), signature, verifier.getValue());
+			} catch (Exception e) {
+				return false;
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 
 }

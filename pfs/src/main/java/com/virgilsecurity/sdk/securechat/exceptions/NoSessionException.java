@@ -37,17 +37,16 @@ import com.virgilsecurity.sdk.client.exceptions.VirgilClientException;
  */
 public class NoSessionException extends VirgilClientException {
 
-    private static final long serialVersionUID = -4039093309654660178L;
+	private static final long serialVersionUID = -4039093309654660178L;
 
-    /**
-     * Create new instance of {@link NoSessionException}.
-     * @param message
-     */
-    public NoSessionException(String message) {
-        super(message);
-        // TODO Auto-generated constructor stub
-    }
-    
-    
+	/**
+	 * Create new instance of {@link NoSessionException}.
+	 * 
+	 * @param message
+	 *            the message.
+	 */
+	public NoSessionException(String message) {
+		super(message);
+	}
 
 }

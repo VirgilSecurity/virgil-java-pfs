@@ -29,7 +29,15 @@
  */
 package com.virgilsecurity.sdk.pfs;
 
+import java.util.UUID;
+
 import org.apache.commons.lang.StringUtils;
+
+import com.virgilsecurity.sdk.client.RequestSigner;
+import com.virgilsecurity.sdk.client.requests.PublishCardRequest;
+import com.virgilsecurity.sdk.crypto.Crypto;
+import com.virgilsecurity.sdk.crypto.KeyPair;
+import com.virgilsecurity.sdk.crypto.PrivateKey;
 
 /**
  * @author Andrii Iakovenko
@@ -37,19 +45,35 @@ import org.apache.commons.lang.StringUtils;
  */
 public class BaseIT {
 
-    protected String APP_ID = getPropertyByName("APP_ID");
-    protected String APP_BUNDLE = getPropertyByName("APP_BUNDLE");
-    protected String APP_TOKEN = getPropertyByName("APP_TOKEN");
-    protected String APP_PRIVATE_KEY_PASSWORD = getPropertyByName("APP_PRIVATE_KEY_PASSWORD");
-    protected String APP_PRIVATE_KEY = StringUtils.replace(getPropertyByName("APP_PRIVATE_KEY"), "\\n", "\n");
-    protected String EMAIL = getPropertyByName("TEST_EMAIL");
-    protected String MAILINATOR_ID = getPropertyByName("MAILINATOR_ID");
+	protected String APP_ID = getPropertyByName("APP_ID");
+	protected String APP_BUNDLE = getPropertyByName("APP_BUNDLE");
+	protected String APP_TOKEN = getPropertyByName("APP_TOKEN");
+	protected String APP_PRIVATE_KEY_PASSWORD = getPropertyByName("APP_PRIVATE_KEY_PASSWORD");
+	protected String APP_PRIVATE_KEY = StringUtils.replace(getPropertyByName("APP_PRIVATE_KEY"), "\\n", "\n");
+	protected String EMAIL = getPropertyByName("TEST_EMAIL");
+	protected String MAILINATOR_ID = getPropertyByName("MAILINATOR_ID");
+	
+	protected Crypto crypto;
+	protected PrivateKey appKey;
 
-    public String getPropertyByName(String propertyName) {
-        if (StringUtils.isBlank(System.getProperty(propertyName))) {
-            return null;
-        }
-        return System.getProperty(propertyName);
-    }
+	public String getPropertyByName(String propertyName) {
+		if (StringUtils.isBlank(System.getProperty(propertyName))) {
+			return null;
+		}
+		return System.getProperty(propertyName);
+	}
+
+	protected PublishCardRequest instantiateCreateCardRequest(KeyPair keyPair) {
+		byte[] exportedPublicKey = crypto.exportPublicKey(keyPair.getPublicKey());
+		String identity = UUID.randomUUID().toString();
+		String identityType = "test_type";
+
+		PublishCardRequest request = new PublishCardRequest(identity, identityType, exportedPublicKey);
+		RequestSigner signer = new RequestSigner(crypto);
+		signer.selfSign(request, keyPair.getPrivateKey());
+		signer.authoritySign(request, APP_ID, appKey);
+
+		return request;
+	}
 
 }

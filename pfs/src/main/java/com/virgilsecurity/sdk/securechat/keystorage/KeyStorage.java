@@ -27,29 +27,36 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.securechat;
+package com.virgilsecurity.sdk.securechat.keystorage;
 
-import static org.junit.Assert.assertFalse;
+import java.util.List;
 
-import org.junit.Test;
+import com.virgilsecurity.sdk.storage.KeyEntry;
 
-/**
- * @author Andrii Iakovenko
- *
- */
-public class SecureSessionTest {
-    
-    @Test
-    public void isSessionInitialized() {
-        SecureSession secureSession = new SecureSession() {
+public interface KeyStorage extends com.virgilsecurity.sdk.storage.KeyStorage {
 
-            @Override
-            public String decrypt(String encryptedMessage) {
-                return null;
-            }
-            
-        };
-        assertFalse(secureSession.isInitialized());
-    }
+	/**
+	 * Deletes the private keys from key store by given key names.
+	 * 
+	 * @param keyNames
+	 *            The Key names.
+	 */
+	void delete(List<String> keyNames);
+
+	/**
+	 * Returns all keys attributes
+	 * 
+	 * @return all keys attributes
+	 */
+	List<KeyAttrs> getAllKeysAttrs();
+
+	/**
+	 * Stores the private keys (that has already been protected) to the given
+	 * alias.
+	 * 
+	 * @param keyEntries
+	 *            Key entries.
+	 */
+	void store(List<KeyEntry> keyEntries);
 
 }

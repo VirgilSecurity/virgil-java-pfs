@@ -35,42 +35,28 @@ import com.google.gson.annotations.SerializedName;
  * @author Andrii Iakovenko
  *
  */
-public class OtcCountResponse {
+public class CardStatus {
 
-    @SerializedName("active")
-    private int active;
+	@SerializedName("active")
+	private int active;
 
-    @SerializedName("exhausted")
-    private int exhausted;
+	/**
+	 * Get active cards amount.
+	 * 
+	 * @return the active cards amount.
+	 */
+	public int getActive() {
+		return active;
+	}
 
-    /**
-     * @return the active
-     */
-    public int getActive() {
-        return active;
-    }
-
-    /**
-     * @param active
-     *            the active to set
-     */
-    public void setActive(int active) {
-        this.active = active;
-    }
-
-    /**
-     * @return the exhausted
-     */
-    public int getExhausted() {
-        return exhausted;
-    }
-
-    /**
-     * @param exhausted
-     *            the exhausted to set
-     */
-    public void setExhausted(int exhausted) {
-        this.exhausted = exhausted;
-    }
+	/**
+	 * Set active cards amount.
+	 * 
+	 * @param active
+	 *            the active cards about.
+	 */
+	public void setActive(int active) {
+		this.active = active;
+	}
 
 }

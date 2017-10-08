@@ -29,24 +29,52 @@
  */
 package com.virgilsecurity.sdk.securechat.exceptions;
 
-import com.virgilsecurity.sdk.client.exceptions.VirgilClientException;
+import com.virgilsecurity.sdk.securechat.Constants;
 
 /**
+ * See error codes at {@link Constants.Errors.SessionManager}.
+ * 
  * @author Andrii Iakovenko
  *
  */
-public class StartNewSessionException extends VirgilClientException {
+public class SecureSessionException extends SecureChatException {
 
-    private static final long serialVersionUID = -8172887972476553536L;
+	private static final long serialVersionUID = 7861067940843021678L;
 
-    /**
-     * Create new instance of {@link StartNewSessionException}.
-     * 
-     * @param code
-     * @param message
-     */
-    public StartNewSessionException(int code, String message) {
-        super(code, message);
-    }
+	/**
+	 * Create new instance of {@link SecureSessionException}.
+	 * 
+	 * @param code
+	 *            the error code.
+	 * @param message
+	 *            the message.
+	 */
+	public SecureSessionException(int code, String message) {
+		super(code, message);
+	}
+
+	/**
+	 * Create new instance of {@link SecureSessionException}.
+	 * 
+	 * @param code
+	 *            the error code.
+	 * @param message
+	 *            the message.
+	 * @param cause
+	 *            the cause.
+	 */
+	public SecureSessionException(int code, String message, Throwable cause) {
+		super(code, message, cause);
+	}
+
+	/**
+	 * Create new instance of {@link SecureSessionException}.
+	 * 
+	 * @param message
+	 *            the message.
+	 */
+	public SecureSessionException(String message) {
+		super(message);
+	}
 
 }

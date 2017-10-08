@@ -37,14 +37,15 @@ import com.virgilsecurity.sdk.client.exceptions.VirgilClientException;
  */
 public class RemoveSessionException extends VirgilClientException {
 
-    private static final long serialVersionUID = -2910193987838983769L;
+	private static final long serialVersionUID = -2910193987838983769L;
 
-    /**
-     * Create new instance of {@link RemoveSessionException}.
-     * 
-     * @param cause
-     */
-    public RemoveSessionException(Throwable cause) {
-        super("Error removing session", cause);
-    }
+	/**
+	 * Create new instance of {@link RemoveSessionException}.
+	 * 
+	 * @param cause
+	 *            the cause.
+	 */
+	public RemoveSessionException(Throwable cause) {
+		super("Error removing session", cause);
+	}
 }

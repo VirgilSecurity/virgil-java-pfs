@@ -55,13 +55,6 @@ public class CredentialsResponse {
     }
 
     /**
-     * @param identityCard the identityCard to set
-     */
-    public void setIdentityCard(CardModel identityCard) {
-        this.identityCard = identityCard;
-    }
-
-    /**
      * @return the longTimeCard
      */
     public CardModel getLongTimeCard() {
@@ -69,17 +62,24 @@ public class CredentialsResponse {
     }
 
     /**
-     * @param longTimeCard the longTimeCard to set
-     */
-    public void setLongTimeCard(CardModel longTimeCard) {
-        this.longTimeCard = longTimeCard;
-    }
-
-    /**
      * @return the oneTimeCard
      */
     public CardModel getOneTimeCard() {
         return oneTimeCard;
+    }
+
+    /**
+     * @param identityCard the identityCard to set
+     */
+    public void setIdentityCard(CardModel identityCard) {
+        this.identityCard = identityCard;
+    }
+
+    /**
+     * @param longTimeCard the longTimeCard to set
+     */
+    public void setLongTimeCard(CardModel longTimeCard) {
+        this.longTimeCard = longTimeCard;
     }
 
     /**

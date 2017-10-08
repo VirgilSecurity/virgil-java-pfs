@@ -60,19 +60,19 @@ public class VirgilPFSClientContext extends VirgilClientContext {
         init();
     }
 
+    /**
+     * @return the ephemeralServiceURL
+     */
+    public URL getEphemeralServiceURL() {
+        return ephemeralServiceURL;
+    }
+
     private void init() {
         try {
             this.ephemeralServiceURL = new URL("https://pfs.virgilsecurity.com");
         } catch (MalformedURLException e) {
             // This should never happen
         }
-    }
-
-    /**
-     * @return the ephemeralServiceURL
-     */
-    public URL getEphemeralServiceURL() {
-        return ephemeralServiceURL;
     }
 
     /**
