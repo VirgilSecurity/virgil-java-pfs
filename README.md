@@ -38,7 +38,7 @@ Read [Get started](https://developer.virgilsecurity.com/docs/java/get-started/pe
 ```
 compile 'com.virgilsecurity.sdk:crypto-android:4.5.0@aar'
 compile 'com.virgilsecurity.sdk:sdk-android:4.5.0@aar'
-compile 'com.virgilsecurity.pfs:pfs-android:1.1.1-SNAPSHOT@aar'
+compile 'com.virgilsecurity.pfs:pfs-android:1.1.1@aar'
 compile 'com.google.code.gson:gson:2.7'
 ````
 
