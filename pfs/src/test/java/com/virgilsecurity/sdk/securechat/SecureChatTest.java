@@ -911,6 +911,74 @@ public class SecureChatTest extends BaseIT {
 		String decryptedMessage1 = bobSession.decrypt(encryptedMessage1);
 		assertEquals(MESSAGE1, decryptedMessage1);
 	}
+	
+	@Test
+	public void initial_message_collision() throws CardValidationException, SecureChatException, NoSessionException, InterruptedException {
+		aliceChat.rotateKeys(this.numberOfCards);
+		bobChat.rotateKeys(this.numberOfCards);
+		
+		SecureSession aliceSession = aliceChat.startNewSession(bobCard, null);
+		SecureSession aliceSession1 = aliceChat.activeSession(bobCard.getId());
+		
+		// Alice sends an initiator message to Bob
+		String encryptedMessage1 = aliceSession1.encrypt(SecureChatTest.MESSAGE1);
+		
+		// Alice sends more messages to Bob
+		String encryptedMessage2 = aliceSession1.encrypt(SecureChatTest.MESSAGE2);
+		
+		// Bob does not receive Alice’s messages immediately and sends a new initiator message
+		SecureSession bobSession1 = bobChat.startNewSession(aliceCard, null);
+		String encryptedMessage3 = bobSession1.encrypt(MESSAGE3);
+		
+		String encryptedMessage4 = bobSession1.encrypt(MESSAGE4);
+
+		// Bob fetches Alice’s old messages which overwrites his session
+		SecureSession bobSession2 = bobChat.loadUpSession(aliceCard, encryptedMessage1, null);
+		assertNotNull(bobSession2);
+
+		String decryptedMessage1 = bobSession2.decrypt(encryptedMessage1);
+		assertEquals(MESSAGE1, decryptedMessage1);
+		
+		SecureSession bobSession3 = bobChat.loadUpSession(aliceCard, encryptedMessage2, null);
+		assertNotNull(bobSession3);
+		String decryptedMessage2 = bobSession3.decrypt(encryptedMessage2);
+		assertEquals(MESSAGE2, decryptedMessage2);
+		
+		// Alice receives bob’s messages which overwrites her session
+		SecureSession aliceSession2 = aliceChat.loadUpSession(bobCard, encryptedMessage3, null);
+		assertNotNull(aliceSession2);
+		
+		String decryptedMessage3 = aliceSession2.decrypt(encryptedMessage3);
+		assertEquals(MESSAGE3, decryptedMessage3);
+		
+		SecureSession aliceSession3 = aliceChat.loadUpSession(bobCard, encryptedMessage4, null);
+		assertNotNull(aliceSession3);
+		
+		String decryptedMessage4 = aliceSession3.decrypt(encryptedMessage4);
+		assertEquals(MESSAGE4, decryptedMessage4);
+	
+		// Bob and Alice have 2 different sessions and can’t decrypt each others messages
+		SecureSession aliceSession4 = aliceChat.activeSession(bobCard.getId());
+		assertNotNull(aliceSession4);
+		
+		String encryptedMessage5 = aliceSession4.encrypt(MESSAGE5);
+		
+		SecureSession bobSession4 = bobChat.loadUpSession(aliceCard, encryptedMessage5, null);
+		assertNotNull(bobSession4);
+		String decryptedMessage5 = bobSession4.decrypt(encryptedMessage5);
+		assertEquals(MESSAGE5, decryptedMessage5);
+				
+		SecureSession bobSession5 = bobChat.activeSession(aliceCard.getId());
+		assertNotNull(bobSession5);
+		
+		String encryptedMessage6 = bobSession5.encrypt(MESSAGE6);
+		
+		SecureSession aliceSession5 = aliceChat.loadUpSession(bobCard, encryptedMessage6, null);
+		assertNotNull(aliceSession5);
+		String decryptedMessage6 = aliceSession5.decrypt(encryptedMessage6);
+		assertEquals(MESSAGE6, decryptedMessage6);
+	}
+
 
 	@Test
 	public void expireOtCard() throws CardValidationException, SecureChatException, NoSessionException,
