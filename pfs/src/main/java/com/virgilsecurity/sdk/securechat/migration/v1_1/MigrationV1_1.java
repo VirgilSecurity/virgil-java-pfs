@@ -49,7 +49,7 @@ public class MigrationV1_1 {
 			return new JsonPrimitive(ConvertionUtils.toBase64String(src));
 		}
 	}
-	
+
 	private class InitiatorSessionState {
 		@SerializedName("creation_date")
 		private Date creationDate;
@@ -286,6 +286,7 @@ public class MigrationV1_1 {
 		}
 
 	}
+
 	private class ResponderSessionState {
 		@SerializedName("creation_date")
 		private Date creationDate;
@@ -489,6 +490,7 @@ public class MigrationV1_1 {
 		}
 
 	}
+
 	private static final Logger log = Logger.getLogger(MigrationV1_1.class.getName());
 	private static final Set<String> INITIATOR_SESSION_STATE_FIELDS;
 	private static final Set<String> RESPONDER_SESSION_STATE_FIELDS;
@@ -498,6 +500,7 @@ public class MigrationV1_1 {
 		RESPONDER_SESSION_STATE_FIELDS = Collections
 				.unmodifiableSet(getSerializedNameValues(ResponderSessionState.class));
 	}
+
 	private static Set<String> getSerializedNameValues(Class<?> clazz) {
 		Set<String> fields = new HashSet<>();
 		for (Field field : clazz.getDeclaredFields()) {
@@ -511,9 +514,11 @@ public class MigrationV1_1 {
 		}
 		return fields;
 	}
+
 	private static String getSuiteName(String cardId) {
 		return "VIRGIL.DEFAULTS." + cardId;
 	}
+
 	public static boolean isInitiatorSessionState(String json) {
 		JsonObject jsObj = (JsonObject) new JsonParser().parse(json);
 		for (String fieldName : INITIATOR_SESSION_STATE_FIELDS) {
@@ -605,7 +610,8 @@ public class MigrationV1_1 {
 		Map<String, InitiatorSessionState> initiators = new HashMap<>();
 		Map<String, ResponderSessionState> responders = new HashMap<>();
 
-		for (Entry<String, String> entry : this.dataStorage.getAllData("VIRGIL.DEFAULTS." + this.identityCard.getId()).entrySet()) {
+		for (Entry<String, String> entry : this.dataStorage.getAllData("VIRGIL.DEFAULTS." + this.identityCard.getId())
+				.entrySet()) {
 			String cardId = this.extractCardId(entry.getKey());
 			if (StringUtils.isBlank(cardId)) {
 				continue;
@@ -642,9 +648,9 @@ public class MigrationV1_1 {
 		// Migrate initiator's sessions
 		for (Entry<String, InitiatorSessionState> initiatorEntry : initiators.entrySet()) {
 			InitiatorSessionState initiator = initiatorEntry.getValue();
-			
+
 			log.fine("Migrate session: " + ConvertionUtils.toBase64String(initiator.sessionId));
-			
+
 			String ephKeyName = initiator.getEphKeyName();
 			KeyEntry ephKeyEntry = this.getEphPrivateKey(ephKeyName);
 			PrivateKey ephPrivateKey;
@@ -751,7 +757,10 @@ public class MigrationV1_1 {
 	}
 
 	private void removeServiceInfoEntry() {
-		this.keyStorage.delete(this.getServiceInfoEntryName());
+		String entryName = this.getServiceInfoEntryName();
+		if (this.keyStorage.exists(entryName)) {
+			this.keyStorage.delete(this.getServiceInfoEntryName());
+		}
 	}
 
 }
