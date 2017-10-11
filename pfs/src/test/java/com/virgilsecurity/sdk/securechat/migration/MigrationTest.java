@@ -150,6 +150,20 @@ public class MigrationTest extends BaseIT {
 		}
 	}
 
+	@Test
+	public void migration_noData() throws CryptoException, MigrationException, SessionManagerException {
+		this.storage = new DefaultUserDataStorage();
+		this.keyStorage = new JsonFileKeyStorage(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString());
+
+		SecureChatContext chatContext = new SecureChatContext(this.card, this.privateKey, crypto, APP_TOKEN);
+		chatContext.setDeviceManager(new DefaultDeviceManager());
+		chatContext.setUserDataStorage(this.storage);
+		chatContext.setKeyStorage(this.keyStorage);
+
+		SecureChat secureChat = new SecureChat(chatContext);
+		secureChat.initialize(true);
+	}
+
 	private String prepareKeystorage(InputStream is) {
 		String fileName = UUID.randomUUID().toString();
 		String dir = System.getProperty("java.io.tmpdir");
