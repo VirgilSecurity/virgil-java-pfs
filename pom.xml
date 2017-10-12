@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.virgilsecurity.pfs</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.1.1</version>
+	<version>1.1.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Virgil PFS - Parent</name>
 	<description>
@@ -42,7 +42,7 @@
 	</developers>
 
 	<properties>
-		<virgil-sdk.version>4.5.0</virgil-sdk.version>
+		<virgil-sdk.version>4.6.0</virgil-sdk.version>
 		<android.version>4.1.1.4</android.version>
 	</properties>
 

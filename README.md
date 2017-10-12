@@ -44,11 +44,36 @@ compile 'com.google.code.gson:gson:2.7'
 
 ### Source code changes
 
-- New key attributes stored in KeyStorage. See `com.virgilsecurity.sdk.securechat.keystorage.JsonFileKeyStorage`.
-- `setUserDefaults` method of `com.virgilsecurity.sdk.securechat.SecureChat` class renamed to `setUserDataStorage`
+Common changes are
 - Changed structure of data stored in DataStorage
-- `com.virgilsecurity.sdk.securechat.SecureSession` class moved to `com.virgilsecurity.sdk.securechat.session` package
-- added additional data parameter to `SecureChat.loadUpSession` method
+- New key attributes stored in KeyStorage. See `com.virgilsecurity.sdk.securechat.keystorage.JsonFileKeyStorage`
+
+There is a new interface `com.virgilsecurity.sdk.securechat.keystorage.KeyStorage` which extends `com.virgilsecurity.sdk.storage.KeyStorage` adding bulk operations with key entries.
+The default implemetation is `com.virgilsecurity.sdk.securechat.keystorage.JsonFileKeyStorage` which is similar to `com.virgilsecurity.sdk.storage.DefaultKeyStorage`.
+
+`com.virgilsecurity.sdk.securechat.SecureSession` class
+- Class moved to `com.virgilsecurity.sdk.securechat.session` package
+- No more `creationDate` parameter. Just skip it
+- No more `isInitialized` method. Use `SecureChat.activeSession` method to get active session for specific recipient. If there is no session, then create a new one with `SecureChat.startNewSession`. Get session with `SecureChat.loadUpSession` method for every incoming message.
+
+Configure `SecureChat` with `com.virgilsecurity.sdk.securechat.SecureChatContext`
+- Define long term key time to live in seconds with `setLongTermKeysTtl` method
+- Define time during which expired long-term key is not removed with `setExpiredLongTermKeysTtl` method
+- Define session time to live in seconds with `setSessionTtl` method
+- Define time during which expired session key is not removed with `setExpiredSessionTtl` method
+- Define time during which one-time key is not removed after sdk determined that it was exhausted with `setExhaustedOneTimeKeysTtl` method
+
+`com.virgilsecurity.sdk.securechat.SecureChat` class
+- added additional data parameter to `SecureChat.loadUpSession` method 
+- `setUserDefaults` method renamed to `setUserDataStorage`
+- added `sessionId` parameter to `removeSession` method. Use `removeSession` when you need to remove specific session
+- added `removeSessions` method. Use it when you need to remove all sessions with specific recipient
+- call `gentleReset` method to remove all sessions and pfs-related keys for current user
+
+It's a good case to obtain existing session with `SecureChat.activeSession` before starting a new session. If no session found, then create a new one with `SecureChat.startNewSession` method. It's the most preferable case.
+
+Don't cache `SecureSession`, get session instance from `SecureChat` with every message.
+
 
 ### Data migration
 

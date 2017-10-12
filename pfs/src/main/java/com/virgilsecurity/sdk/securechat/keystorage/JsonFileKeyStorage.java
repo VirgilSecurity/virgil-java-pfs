@@ -365,9 +365,13 @@ public class JsonFileKeyStorage implements KeyStorage {
 	 */
 	@Override
 	public void store(List<KeyEntry> keyEntries) {
+		String creationDateStr = getGson().toJson(new Date());
 		synchronized (this) {
 			Entries entries = load();
 			for (KeyEntry keyEntry : keyEntries) {
+				if (!keyEntry.getMetadata().containsKey(CREATION_DATE_META_KEY)) {
+					keyEntry.getMetadata().put(CREATION_DATE_META_KEY, creationDateStr);
+				}
 				entries.put(keyEntry.getName(), (VirgilKeyEntry) keyEntry);
 			}
 			save(entries);
