@@ -52,9 +52,7 @@ AT.7652ee415726a1f43c7206e4b4bc67ac935b53781f5b43a92540e8aae5381b14
 
 Virgil Java PFS SDK is suitable only for Client Side. If you need Java for Server Side, take a look at this [repository](https://github.com/VirgilSecurity/virgil-sdk-java-android/tree/v4).
 
-In Virgil every user:
-* Has a **Private Key**
-* Represented with a **Virgil Card (Identity Card)**
+In Virgil every user has a **Private Key** and represented with a **Virgil Card (Identity Card)**.
 
 The Virgil Card contains user's Public Key and all information necessary to identify the user.
 Click [here](#register-users) to see more details on how to create user's Virgil Card.
@@ -159,9 +157,7 @@ __Next:__ Take a look at our [Get Started](/docs/get-started/pfs-encrypted-commu
 
 ## Register Users
 
-In Virgil every user:
-* Has a **Private Key**
-* Represented with a **Virgil Card (Identity Card)**
+In Virgil every user has a **Private Key** and represented with a **Virgil Card (Identity Card)**.
 
 Using Identity Cards, we generate special Cards that have their own life-time:
 * **One-time Card (OTC)**
