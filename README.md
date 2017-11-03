@@ -1,55 +1,220 @@
-# Introduction
+# Virgil .NET/C# PFS SDK
 
-Virgil Perfect Forward Secrecy (PFS) is designed to prevent a possibly compromised long-term secret key from affecting the confidentiality of past communications. In this tutorial, we will be helping two people or IoT devices to communicate with end-to-end encryption with PFS enabled.
+[Installation](#installation) | [Initialization](#initialization) | [Chat Example](#chat-example) | [Register Users](#register-users) | [Documentation](#documentation) | [Support](#support)
 
-# Get started
+[Virgil Security](https://virgilsecurity.com) provides a set of APIs for adding security to any application.
 
-Read [Get started](https://developer.virgilsecurity.com/docs/java/get-started/perfect-forward-secrecy) document which describes common cases of Virgil PFS usage.
+[Perfect Forward Secrecy](https://developer.virgilsecurity.com/docs/references/perfect-forward-secrecy) (PFS) for Encrypted Communication allows you to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
 
-# Migration manual
+Virgil __Java PFS SDK__ contains dependent Virgil [Java](https://github.com/VirgilSecurity/virgil-sdk-java-android/tree/v4) package.
 
-## Migrate to 1.1 from 1.0
 
-### Release notes
+To initialize and use Virgil PFS SDK, you need to have [Developer Account](https://developer.virgilsecurity.com/account/signin).
 
-- Added multiple sessions support
+## Installation
 
-### Update client dependencies
-
-#### Maven
+The Virgil Java SDK is provided as a package named com.virgilsecurity.sdk. The package is distributed via Maven repository.
+The package is available for:
+Java 7 and newer
+Android API 16 and newer
+Prerequisites:
+Java Development Kit (JDK) 7+
+Maven 3+
+Installing the package:
+You can easily add SDK dependency to your project, just follow the examples below (Maven):
 
 ```
 <dependencies>
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>crypto</artifactId>
-        <version>4.5.0</version>
+        <version>4.3.3</version>
     </dependency>
     <dependency>
-        <groupId>com.virgilsecurity.pfs</groupId>
-        <artifactId>pfs</artifactId>
-        <version>1.1.1</version>
+        <groupId>com.virgilsecurity.sdk</groupId>
+        <artifactId>sdk</artifactId>
+        <version>4.3.3</version>
     </dependency>
 </dependencies>
 ```
 
-#### Gradle (Android)
+## Initialization
+
+Be sure that you have already registered at the [Dev Portal](https://developer.virgilsecurity.com/account/signin) and created your application.
+
+To initialize the PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dev Portal](https://developer.virgilsecurity.com/account/signin).
+The Access Token helps to authenticate client's requests.
 
 ```
-compile 'com.virgilsecurity.sdk:crypto-android:4.5.0@aar'
-compile 'com.virgilsecurity.sdk:sdk-android:4.5.0@aar'
-compile 'com.virgilsecurity.pfs:pfs-android:1.1.1@aar'
-compile 'com.google.code.gson:gson:2.7'
-````
+// an example of an Access Token representation
+AT.7652ee415726a1f43c7206e4b4bc67ac935b53781f5b43a92540e8aae5381b14
+```
 
-### Source code changes
+Virgil Java PFS SDK is suitable only for Client Side. If you need Java for Server Side, take a look at this [repository](https://github.com/VirgilSecurity/virgil-sdk-java-android/tree/v4).
 
-- New key attributes stored in KeyStorage. See `com.virgilsecurity.sdk.securechat.keystorage.JsonFileKeyStorage`.
-- `setUserDefaults` method of `com.virgilsecurity.sdk.securechat.SecureChat` class renamed to `setUserDataStorage`
-- Changed structure of data stored in DataStorage
-- `com.virgilsecurity.sdk.securechat.SecureSession` class moved to `com.virgilsecurity.sdk.securechat.session` package
-- added additional data parameter to `SecureChat.loadUpSession` method
+In Virgil every user:
+* Has a **Private Key**
+* Represented with a **Virgil Card (Identity Card)**
 
-### Data migration
+The Virgil Card contains user's Public Key and all information necessary to identify the user.
+Click [here](#register-users) to see more details on how to create user's Virgil Card.
 
-Call `initialize();` method of `SecureChat` instance right after `SecureChat` intance created. It will migrate structure of the data stored by previous version.
+
+
+## Chat Example
+
+Before chat initialization, every user must have created Virgil Card.
+If you have no Virgil Card yet, you can easily create it with our [guide](#register-users).
+
+To begin communicating with PFS technology, every user must run the initialization:
+
+```cs
+// initialize Virgil crypto instance
+var crypto = new VirgilCrypto();
+// enter User's credentials to create OTC and LTC Cards
+var preferences = new SecureChatPreferences(
+    crypto,
+    "[BOB_IDENTITY_CARD]",
+    "[BOB_PRIVATE_KEY]",
+    "[YOUR_ACCESS_TOKEN_HERE]");
+
+// this class performs all PFS-technology logic: creates LTC and OTL Cards, publishes them, etc.
+var chat = new SecureChat(preferences);
+
+// the method is periodically called to:
+// - check availability of user's OTC Cards on the service
+// - add new Cards till their quantity reaches the number (100) noted in current method
+await this.SecureChat.RotateKeysAsync(100);
+```
+
+Then Sender establishes a secure PFS conversation with Receiver, encrypts and sends the message:
+
+```cs
+public void SendMessage(User receiver, string message) {
+    // get an active session by receiver's Virgil Card ID
+    var session = this.Chat.ActiveSession(receiver.Card.Id);
+    if (session == null)
+    {
+        // start new session with recipient if session wasn't initialized yet
+        try
+        {
+	       	session = await this.chat.StartNewSessionWithAsync(receiver.Card);
+       	}
+       	catch{
+    	   	// Error handling
+       	}
+    }
+    this.SendMessage(receiver, session, message);
+}
+
+public void SendMessage(User receiver, SecureSession session, string message) {
+    string ciphertext;
+    try
+    {
+        // encrypt the message using previously initialized session
+        ciphertext = session.Encrypt(message);
+    }
+    catch (Exception) {
+        // error handling
+    }
+
+    // send a cipher message to recipient using your messaging service
+    this.Messenger.SendMessage(receiver.Name, ciphertext)
+}
+```
+
+Receiver decrypts the incoming message using the conversation he has just created:
+
+```cs
+public void MessageReceived(string senderName, string message) {
+    var sender = this.Users.Where(x => x.Name == senderName).FirstOrDefault();
+    if (sender == null){
+       return;
+    }
+
+    this.ReceiveMessage(sender, message);
+}
+
+public void ReceiveMessage(User sender, string message) {
+    try
+    {
+        var session = this.Chat.LoadUpSession(sender.Card, message);
+
+        // decrypt message using established session
+        var plaintext = session.Decrypt(message);
+
+        // show a message to the user
+        Print(plaintext);
+    }
+    catch (Exception){
+        // error handling
+    }
+}
+```
+
+With the open session, which works in both directions, Sender and Receiver can continue PFS-encrypted communication.
+
+__Next:__ Take a look at our [Get Started](/docs/get-started/pfs-encrypted-communication.md) guide to see the whole scenario of the PFS-encrypted communication.
+
+
+## Register Users
+
+In Virgil every user:
+* Has a **Private Key**
+* Represented with a **Virgil Card (Identity Card)**
+
+Using Identity Cards, we generate special Cards that have their own life-time:
+* **One-time Card (OTC)**
+* **Long-time Card (LTC)**
+
+For each session you can use new OTC and delete it after session is finished.
+
+To create user's Identity Virgil Cards, use the following code:
+
+```cs
+// generate a new Virgil Key for Alice
+var aliceKey = virgil.Keys.Generate()
+
+// save the Alice's Virgil Key into the storage at her device
+aliceKey.Save("[KEY_NAME]", "[KEY_PASSWORD]");
+
+// create a Alice's Virgil Card
+var aliceCard = virgil.Cards.Create("alice", aliceKey);
+
+// export a Virgil Card to string
+var exportedAliceCard = aliceCard.Export();
+```
+after Virgil Card creation it is necessary to sign and publish it with Application Private Virgil Key at the server side.
+
+```cs
+// import Alice's Virgil Card from string
+VirgilCard importedCard = virgil.getCards().importCard(exportedCard);
+
+// publish the Virgil Card at Virgil Services
+virgil.getCards().publish(importedCard);
+```
+Now, you have user's Virgil Cards and ready to initialize a PFS Chat. During initialization you create OTC and LTC Cards.
+
+Find more examples in our [guide](/docs/get-started/pfs-encrypted-communication.md).
+
+## Documentation
+
+Virgil Security has a powerful set of APIs and the documentation to help you get started:
+
+* Get Started
+  * [PFS Encrypted Сommunication](/docs/get-started/pfs-encrypted-communication.md)
+* [Configuration](/docs/guides/configuration)
+  * [Set Up PFS Client Side](/docs/guides/configuration/client-pfs.md)
+  * [Set Up Server Side](/docs/guides/configuration/server.md)
+
+To find more examples how to use Virgil Cards, take a look at [.NET SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-java-android/blob/v4/README.md)
+
+## License
+
+This library is released under the [3-clause BSD License](LICENSE.md).
+
+## Support
+
+Our developer support team is here to help you. You can find us on [Twitter](https://twitter.com/virgilsecurity) and [email][support].
+
+[support]: mailto:support@virgilsecurity.com
