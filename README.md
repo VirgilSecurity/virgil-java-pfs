@@ -1,4 +1,4 @@
-# Virgil .NET/C# PFS SDK
+  # Virgil .NET/C# PFS SDK
 
 [Installation](#installation) | [Initialization](#initialization) | [Chat Example](#chat-example) | [Register Users](#register-users) | [Documentation](#documentation) | [Support](#support)
 
@@ -14,29 +14,50 @@ To initialize and use Virgil PFS SDK, you need to have [Developer Account](https
 ## Installation
 
 The Virgil Java SDK is provided as a package named com.virgilsecurity.sdk. The package is distributed via Maven repository.
-The package is available for:
-Java 7 and newer
-Android API 16 and newer
-Prerequisites:
-Java Development Kit (JDK) 7+
-Maven 3+
-Installing the package:
-You can easily add SDK dependency to your project, just follow the examples below (Maven):
+
+### Target
+
+* Java 7+.
+* Android API 16+.
+
+### Prerequisites
+
+* Java Development Kit (JDK) 7+
+* Maven 3+
+
+### Installing the package
+
+You can easily add SDK dependency to your project, just follow the examples below
+
+#### Maven
+
+Use this packages for Java projects.
 
 ```
-<dependencies>
-    <dependency>
-        <groupId>com.virgilsecurity.sdk</groupId>
-        <artifactId>crypto</artifactId>
-        <version>4.3.3</version>
-    </dependency>
-    <dependency>
-        <groupId>com.virgilsecurity.sdk</groupId>
-        <artifactId>sdk</artifactId>
-        <version>4.3.3</version>
-    </dependency>
-</dependencies>
+<dependency>
+    <groupId>com.virgilsecurity.sdk</groupId>
+    <artifactId>crypto</artifactId>
+    <version>4.3.3</version>
+</dependency>
+<dependency>
+    <groupId>com.virgilsecurity.sdk</groupId>
+    <artifactId>sdk</artifactId>
+    <version>4.3.3</version>
+</dependency>
 ```
+
+#### Gradle
+
+Use this packages for Android projects.
+
+```
+compile 'com.virgilsecurity.sdk:crypto-android:4.3.3@aar'
+compile 'com.virgilsecurity.sdk:sdk-android:4.3.3@aar'
+compile 'com.google.code.gson:gson:2.7'
+```
+
+__Next:__ [Get Started with the Java/Android SDK][_getstarted].
+
 
 ## Initialization
 
@@ -45,9 +66,8 @@ Be sure that you have already registered at the [Dev Portal](https://developer.v
 To initialize the PFS SDK at the __Client Side__, you need only the __Access Token__ created for a client at [Dev Portal](https://developer.virgilsecurity.com/account/signin).
 The Access Token helps to authenticate client's requests.
 
-```
-// an example of an Access Token representation
-AT.7652ee415726a1f43c7206e4b4bc67ac935b53781f5b43a92540e8aae5381b14
+```java
+VirgilApi virgil = new VirgilApiImpl("[ACCESS_TOKEN]");
 ```
 
 Virgil Java PFS SDK is suitable only for Client Side. If you need Java for Server Side, take a look at this [repository](https://github.com/VirgilSecurity/virgil-sdk-java-android/tree/v4).
