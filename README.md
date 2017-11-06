@@ -4,7 +4,8 @@
 
 [Virgil Security](https://virgilsecurity.com) provides a set of APIs for adding security to any application.
 
-[Perfect Forward Secrecy](https://developer.virgilsecurity.com/docs/references/perfect-forward-secrecy) (PFS) for Encrypted Communication allows you to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
+[Perfect Forward Secrecy](https://developer.virgilsecurity.com/docs/references/perfect-forward-secrecy) (
+) for Encrypted Communication allows you to protect previously intercepted traffic from being decrypted even if the main Private Key is compromised.
 
 Virgil __Java PFS SDK__ contains dependent Virgil [Java](https://github.com/VirgilSecurity/virgil-sdk-java-android/tree/v4) package.
 
@@ -157,8 +158,6 @@ private void sendMessage(SecureSession session, CardModel receiverCard,
 ```
 
 With the open session, which works in both directions, Sender and Receiver can continue PFS-encrypted communication.
-
-__Next:__ Take a look at our [Get Started](/docs/get-started/pfs-encrypted-communication.md) guide to see the whole scenario of the PFS-encrypted communication.
 
 
 ## Register Users
