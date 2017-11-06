@@ -56,7 +56,7 @@ compile 'com.virgilsecurity.sdk:sdk-android:4.3.3@aar'
 compile 'com.google.code.gson:gson:2.7'
 ```
 
-__Next:__ [Get Started with the Java/Android SDK][_getstarted].
+[Get Started with the Java/Android SDK](_getstarted).
 
 
 ## Initialization
