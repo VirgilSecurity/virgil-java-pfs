@@ -27,7 +27,7 @@ The Virgil Java SDK is provided as a package named com.virgilsecurity.sdk. The p
 
 ### Installing the package
 
-You can easily add SDK dependency to your project, just follow the examples below
+You can easily add SDK dependency to your project, just follow the examples below.
 
 #### Maven
 
@@ -56,7 +56,7 @@ compile 'com.virgilsecurity.sdk:sdk-android:4.3.3@aar'
 compile 'com.google.code.gson:gson:2.7'
 ```
 
-[Get Started with the Java/Android SDK](_getstarted).
+[Get Started with the Java/Android SDK](https://github.com/VirgilSecurity/virgil-sdk-java-android/tree/v4/docs/get-started).
 
 
 ## Initialization
@@ -107,66 +107,52 @@ await this.SecureChat.RotateKeysAsync(100);
 
 Then Sender establishes a secure PFS conversation with Receiver, encrypts and sends the message:
 
-```cs
-public void SendMessage(User receiver, string message) {
-    // get an active session by receiver's Virgil Card ID
-    var session = this.Chat.ActiveSession(receiver.Card.Id);
-    if (session == null)
-    {
-        // start new session with recipient if session wasn't initialized yet
-        try
-        {
-	       	session = await this.chat.StartNewSessionWithAsync(receiver.Card);
-       	}
-       	catch{
-    	   	// Error handling
-       	}
-    }
-    this.SendMessage(receiver, session, message);
-}
+```java
+private void receiveMessage(SecureChat chat, CardModel senderCard, String message) {
+    try {
+        // load an existing session or establish new one
+        SecureSession session = chat.loadUpSession(senderCard, message);
 
-public void SendMessage(User receiver, SecureSession session, string message) {
-    string ciphertext;
-    try
-    {
-        // encrypt the message using previously initialized session
-        ciphertext = session.Encrypt(message);
-    }
-    catch (Exception) {
-        // error handling
-    }
+        // decrypt message using established session
+        String plaintext = session.decrypt(message);
 
-    // send a cipher message to recipient using your messaging service
-    this.Messenger.SendMessage(receiver.Name, ciphertext)
+        // handle a message
+        handleMessage(plaintext);
+    } catch (Exception e) {
+        // Error handling
+    }
 }
 ```
 
 Receiver decrypts the incoming message using the conversation he has just created:
 
-```cs
-public void MessageReceived(string senderName, string message) {
-    var sender = this.Users.Where(x => x.Name == senderName).FirstOrDefault();
-    if (sender == null){
-       return;
+```java
+private void sendMessage(SecureChat chat, CardModel receiverCard, String message) {
+    // get an active session by recipient's card id
+    SecureSession session = chat.activeSession(receiverCard.getId());
+
+    if (session == null) {
+        // start new session with recipient if session wasn't initialized yet
+        session = chat.startNewSession(receiverCard, null);
     }
 
-    this.ReceiveMessage(sender, message);
+    sendMessage(session, receiverCard, message);
 }
 
-public void ReceiveMessage(User sender, string message) {
-    try
-    {
-        var session = this.Chat.LoadUpSession(sender.Card, message);
-
-        // decrypt message using established session
-        var plaintext = session.Decrypt(message);
-
-        // show a message to the user
-        Print(plaintext);
-    }
-    catch (Exception){
+private void sendMessage(SecureSession session, CardModel receiverCard,
+    String message) {
+        String ciphertext = null;
+    try {
+        // encrypt the message using previously initialized session
+        ciphertext = session.encrypt(message);
+    } catch (Exception e) {
         // error handling
+        return;
     }
+
+    // send a cipher message to recipient using your messaging service
+    sendMessageToRecipient(receiverCard.getSnapshotModel().getIdentity(),
+        ciphertext);
 }
 ```
 
@@ -189,16 +175,17 @@ To create user's Identity Virgil Cards, use the following code:
 
 ```cs
 // generate a new Virgil Key for Alice
-var aliceKey = virgil.Keys.Generate()
+VirgilKey aliceKey = virgil.getKeys().generate();
 
 // save the Alice's Virgil Key into the storage at her device
-aliceKey.Save("[KEY_NAME]", "[KEY_PASSWORD]");
+aliceKey.save("[KEY_NAME]", "[KEY_PASSWORD]");
 
-// create a Alice's Virgil Card
-var aliceCard = virgil.Cards.Create("alice", aliceKey);
+// create Alice's Virgil Card
+VirgilCard aliceCard = virgil.getCards().create(aliceIdentity, aliceKey,
+    USERNAME_IDENTITY_TYPE);
 
 // export a Virgil Card to string
-var exportedAliceCard = aliceCard.Export();
+String exportedCard = aliceCard.export();
 ```
 after Virgil Card creation it is necessary to sign and publish it with Application Private Virgil Key at the server side.
 
