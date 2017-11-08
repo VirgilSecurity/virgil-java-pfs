@@ -206,8 +206,8 @@ Virgil Security has a powerful set of APIs and the documentation to help you get
 * [Get Started](/docs/get-started)
   * [PFS Encrypted Сommunication](/docs/get-started/pfs-encrypted-communication.md)
 * [Configuration](/docs/guides/configuration)
-  * [Set Up PFS Client Side](/docs/guides/configuration/client-pfs.md)
-  * [Set Up Server Side](/docs/guides/configuration/server.md)
+  * [Set Up Client Side](/docs/guides/configuration/client-configuration.md)
+  * [Set Up Server Side](/docs/guides/configuration/server-configuration.md)
 
 To find more examples how to use Virgil Cards, take a look at [JAVA SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-java-android/blob/v4/README.md)
 
