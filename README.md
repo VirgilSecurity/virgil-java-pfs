@@ -1,4 +1,4 @@
-  # Virgil .NET/C# PFS SDK
+  # Virgil JAVA PFS SDK
 
 [Installation](#installation) | [Initialization](#initialization) | [Chat Example](#chat-example) | [Register Users](#register-users) | [Documentation](#documentation) | [Support](#support)
 
@@ -209,7 +209,7 @@ Virgil Security has a powerful set of APIs and the documentation to help you get
   * [Set Up PFS Client Side](/docs/guides/configuration/client-pfs.md)
   * [Set Up Server Side](/docs/guides/configuration/server.md)
 
-To find more examples how to use Virgil Cards, take a look at [.NET SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-java-android/blob/v4/README.md)
+To find more examples how to use Virgil Cards, take a look at [JAVA SDK documentation](https://github.com/VirgilSecurity/virgil-sdk-java-android/blob/v4/README.md)
 
 ## License
 
