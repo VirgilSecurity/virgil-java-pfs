@@ -86,23 +86,20 @@ If you have no Virgil Card yet, you can easily create it with our [guide](#regis
 
 To begin communicating with PFS technology, every user must run the initialization:
 
-```cs
-// initialize Virgil crypto instance
-var crypto = new VirgilCrypto();
-// enter User's credentials to create OTC and LTC Cards
-var preferences = new SecureChatPreferences(
-    crypto,
-    "[BOB_IDENTITY_CARD]",
-    "[BOB_PRIVATE_KEY]",
-    "[YOUR_ACCESS_TOKEN_HERE]");
+```java
+// Initialize PFS chat (alice)
+SecureChatContext aliceChatContext = new SecureChatContext(aliceCard.getModel(),
+    aliceKeys.getPrivateKey(), context.getCrypto(), ctx);
 
-// this class performs all PFS-technology logic: creates LTC and OTL Cards, publishes them, etc.
-var chat = new SecureChat(preferences);
+aliceChatContext.setKeyStorage(new VirgilKeyStorage());
+aliceChatContext.setDeviceManager(new DefaultDeviceManager());
+aliceChatContext.setUserDefaults(new DefaultUserDataStorage());
+SecureChat aliceChat = new SecureChat(aliceChatContext);
 
 // the method is periodically called to:
 // - check availability of user's OTC Cards on the service
 // - add new Cards till their quantity reaches the number (100) noted in current method
-await this.SecureChat.RotateKeysAsync(100);
+aliceChat.rotateKeys(5);
 ```
 
 Then Sender establishes a secure PFS conversation with Receiver, encrypts and sends the message:
