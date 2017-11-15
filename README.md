@@ -98,7 +98,7 @@ SecureChat aliceChat = new SecureChat(aliceChatContext);
 
 // the method is periodically called to:
 // - check availability of user's OTC Cards on the service
-// - add new Cards till their quantity reaches the number (100) noted in current method
+// - add new Cards till their quantity reaches the number (5) noted in current method
 aliceChat.rotateKeys(5);
 ```
 
