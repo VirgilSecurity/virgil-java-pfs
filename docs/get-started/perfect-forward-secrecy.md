@@ -38,8 +38,8 @@ VirgilKey aliceKey = virgil.getKeys().generate();
 aliceKey.save("[KEY_NAME]", "[KEY_PASSWORD]");
 
 // create a Virgil Card
-VirgilCard aliceCard = virgil.getCards().create(aliceIdentity, aliceKey,
-    USERNAME_IDENTITY_TYPE);
+VirgilCard aliceCard = virgil.getCards().create("[ALICE_IDENTITY]",
+        aliceKey, "[USER_IDENTITY_TYPE]");
 ```
 
 **Warning**: Virgil doesn't keep a copy of your Virgil Key. If you lose a Virgil Key, there is no way to recover it.
@@ -73,15 +73,19 @@ To begin communicating, Bob must run the initialization:
 
 ```java
 // Initialize PFS chat (bob)
-SecureChatContext bobChatContext = new SecureChatContext(bobCard.getModel(),
-    bobKeys.getPrivateKey(), context.getCrypto(), ctx);
+Crypto crypto = new VirgilCrypto();
 
-bobChatContext.setKeyStorage(new VirgilKeyStorage());
+VirgilPFSClientContext bobPfsCtx =
+        new VirgilPFSClientContext("[ACCESS_TOKEN]");
+SecureChatContext bobChatContext = new SecureChatContext(
+        bobCard.getModel(), bobKey.getPrivateKey(), crypto, bobPfsCtx);
+
+bobChatContext.setKeyStorage(new JsonFileKeyStorage());
 bobChatContext.setDeviceManager(new DefaultDeviceManager());
-bobChatContext.setUserDefaults(new DefaultUserDataStorage());
+bobChatContext.setUserDataStorage(new DefaultUserDataStorage());
 SecureChat bobChat = new SecureChat(bobChatContext);
 
-aliceChat.rotateKeys(5);
+bobChat.rotateKeys(5);
 ```
 
 **Warning**: If Bob does not run the chat initialization, Alice cannot create an initial message.
@@ -90,12 +94,15 @@ Then, Alice must run the initialization:
 
 ```java
 // Initialize PFS chat (alice)
-SecureChatContext aliceChatContext = new SecureChatContext(aliceCard.getModel(),
-    aliceKeys.getPrivateKey(), context.getCrypto(), ctx);
+VirgilPFSClientContext alicePfsCtx =
+        new VirgilPFSClientContext("[ACCESS_TOKEN]");
+SecureChatContext aliceChatContext = new SecureChatContext(
+        aliceCard.getModel(), aliceKey.getPrivateKey(), crypto,
+        alicePfsCtx);
 
-aliceChatContext.setKeyStorage(new VirgilKeyStorage());
+aliceChatContext.setKeyStorage(new JsonFileKeyStorage());
 aliceChatContext.setDeviceManager(new DefaultDeviceManager());
-aliceChatContext.setUserDefaults(new DefaultUserDataStorage());
+aliceChatContext.setUserDataStorage(new DefaultUserDataStorage());
 SecureChat aliceChat = new SecureChat(aliceChatContext);
 
 aliceChat.rotateKeys(5);
@@ -110,14 +117,15 @@ Once Recipients initialized a PFS Chat, they can communicate.
 Alice establishes a secure PFS conversation with Bob, encrypts and sends the message to him:
 
 ```java
-private void receiveMessage(SecureChat chat, CardModel senderCard, String message) {
+private void receiveMessage(SecureChat chat, CardModel senderCard,
+        String message) {
     try {
         // load an existing session or establish new one
-        SecureSession session = chat.loadUpSession(senderCard, message);
-
+        SecureSession session = chat.loadUpSession(senderCard, message, null);
+        
         // decrypt message using established session
         String plaintext = session.decrypt(message);
-
+        
         // handle a message
         handleMessage(plaintext);
     } catch (Exception e) {
@@ -131,21 +139,30 @@ Then Bob decrypts the incoming message using the conversation he has just create
 
 
 ```java
-private void sendMessage(SecureChat chat, CardModel receiverCard, String message) {
+private void sendMessage(SecureChat chat, CardModel receiverCard,
+        String message) {
     // get an active session by recipient's card id
     SecureSession session = chat.activeSession(receiverCard.getId());
-
+    
     if (session == null) {
         // start new session with recipient if session wasn't initialized yet
-        session = chat.startNewSession(receiverCard, null);
+        try {
+            session = chat.startNewSession(receiverCard, null);
+        } catch (CardValidationException e) {
+            // error handling
+            return;
+        } catch (SecureChatException e) {
+            // error handling
+            return;
+        }
     }
-
+    
     sendMessage(session, receiverCard, message);
 }
 
 private void sendMessage(SecureSession session, CardModel receiverCard,
-    String message) {
-        String ciphertext = null;
+        String message) {
+    String ciphertext = null;
     try {
         // encrypt the message using previously initialized session
         ciphertext = session.encrypt(message);
@@ -153,10 +170,10 @@ private void sendMessage(SecureSession session, CardModel receiverCard,
         // error handling
         return;
     }
-
+    
     // send a cipher message to recipient using your messaging service
     sendMessageToRecipient(receiverCard.getSnapshotModel().getIdentity(),
-        ciphertext);
+            ciphertext);
 }
 ```
 

@@ -40,16 +40,16 @@ Users' Virgil Card creation is carried out on the client side.
   – Create a Virgil Card using the recently generated Virgil Key
 
 
-  ```java
-  // generate a new Virgil Key
-  VirgilKey aliceKey = virgil.getKeys().generate();
+```java
+// generate a new Virgil Key
+VirgilKey aliceKey = virgil.getKeys().generate();
 
-  // save the Virgil Key into the storage
-  aliceKey.save("[KEY_NAME]", "[KEY_PASSWORD]");
+// save the Virgil Key into the storage
+aliceKey.save("[KEY_NAME]", "[KEY_PASSWORD]");
 
-  // create a Virgil Card
-  VirgilCard aliceCard = virgil.getCards().create("alice", aliceKey);
-  ```
+// create a Virgil Card
+VirgilCard aliceCard = virgil.getCards().create("alice", aliceKey);
+```
 
 The Virgil Key will be saved into default device storage. Developers can also change the Virgil Key storage directory as needed during Virgil SDK initialization.
 
@@ -74,16 +74,17 @@ On the Application's Server Side, one must:
 
  - Initialize the Virgil SDK and enter the Application **credentials** (**App ID**, **App Key**, and **App Key password**).
 
- ```java
- Crypto crypto = new VirgilCrypto();
- VirgilClientContext ctx = new VirgilClientContext(APP_TOKEN);
- VirgilClient client = new VirgilClient(ctx);
- RequestSigner requestSigner = new RequestSigner(crypto);
+```java
+AppCredentials credentials = new AppCredentials();
+credentials.setAppId("[APPLICATION_ID]");
+credentials.setAppKey(VirgilBuffer.from("[APP_PRIVATE_KEY]"));
+credentials.setAppKeyPassword("[APP_PRIVATE_KEY_PASSWORD]");
 
- // Import application private key
- PrivateKey appKey = crypto.importPrivateKey(APP_PRIVATE_KEY.getBytes(),
-     APP_PRIVATE_KEY_PASSWORD);
- ```
+VirgilApiContext ctx = new VirgilApiContext("[ACCESS_TOKEN]");
+ctx.setCredentials(credentials);
+
+VirgilApi virgil = new VirgilApiImpl(ctx);
+```
 
 -  Import a Virgil Card from its string representation.
 

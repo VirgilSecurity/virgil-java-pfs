@@ -24,12 +24,12 @@ You can easily add SDK dependency to your project, just follow the examples belo
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>crypto</artifactId>
-        <version>4.3.3</version>
+        <version>4.5.0</version>
     </dependency>
     <dependency>
-        <groupId>com.virgilsecurity.sdk</groupId>
-        <artifactId>sdk</artifactId>
-        <version>4.3.3</version>
+        <groupId>com.virgilsecurity.pfs</groupId>
+        <artifactId>pfs</artifactId>
+        <version>1.1.1</version>
     </dependency>
 </dependencies>
 ```

@@ -34,16 +34,18 @@ You can easily add SDK dependency to your project, just follow the examples belo
 Use this packages for Java projects.
 
 ```
-<dependency>
-    <groupId>com.virgilsecurity.sdk</groupId>
-    <artifactId>crypto</artifactId>
-    <version>4.3.3</version>
-</dependency>
-<dependency>
-    <groupId>com.virgilsecurity.sdk</groupId>
-    <artifactId>sdk</artifactId>
-    <version>4.3.3</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.virgilsecurity.sdk</groupId>
+        <artifactId>crypto</artifactId>
+        <version>4.5.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.virgilsecurity.pfs</groupId>
+        <artifactId>pfs</artifactId>
+        <version>1.1.1</version>
+    </dependency>
+</dependencies>
 ```
 
 #### Gradle
@@ -51,9 +53,9 @@ Use this packages for Java projects.
 Use this packages for Android projects.
 
 ```
-compile 'com.virgilsecurity.sdk:crypto-android:4.3.3@aar'
-compile 'com.virgilsecurity.sdk:sdk-android:4.3.3@aar'
-compile 'com.google.code.gson:gson:2.7'
+compile 'com.virgilsecurity.sdk:crypto-android:4.5.0@aar'
+compile 'com.virgilsecurity.sdk:sdk-android:4.5.0@aar'
+compile 'com.virgilsecurity.pfs:pfs-android:1.1.0@aar'
 ```
 
 [Get Started with the Java/Android SDK](https://github.com/VirgilSecurity/virgil-sdk-java-android/tree/v4/docs/get-started).
@@ -88,31 +90,36 @@ To begin communicating with PFS technology, every user must run the initializati
 
 ```java
 // Initialize PFS chat (alice)
-SecureChatContext aliceChatContext = new SecureChatContext(aliceCard.getModel(),
-    aliceKeys.getPrivateKey(), context.getCrypto(), ctx);
+Crypto crypto = new VirgilCrypto();
+VirgilPFSClientContext pfsCtx =
+        new VirgilPFSClientContext("[ACCESS_TOKEN]");
+SecureChatContext aliceChatContext = new SecureChatContext(
+        aliceCard.getModel(), aliceKey.getPrivateKey(), crypto, pfsCtx);
 
-aliceChatContext.setKeyStorage(new VirgilKeyStorage());
+aliceChatContext.setKeyStorage(new JsonFileKeyStorage());
 aliceChatContext.setDeviceManager(new DefaultDeviceManager());
-aliceChatContext.setUserDefaults(new DefaultUserDataStorage());
+aliceChatContext.setUserDataStorage(new DefaultUserDataStorage());
 SecureChat aliceChat = new SecureChat(aliceChatContext);
 
 // the method is periodically called to:
 // - check availability of user's OTC Cards on the service
-// - add new Cards till their quantity reaches the number (5) noted in current method
+// - add new Cards till their quantity reaches the number (5) noted in
+// current method
 aliceChat.rotateKeys(5);
 ```
 
 Then Sender establishes a secure PFS conversation with Receiver, encrypts and sends the message:
 
 ```java
-private void receiveMessage(SecureChat chat, CardModel senderCard, String message) {
+private void receiveMessage(SecureChat chat, CardModel senderCard,
+        String message) {
     try {
         // load an existing session or establish new one
-        SecureSession session = chat.loadUpSession(senderCard, message);
-
+        SecureSession session = chat.loadUpSession(senderCard, message, null);
+        
         // decrypt message using established session
         String plaintext = session.decrypt(message);
-
+        
         // handle a message
         handleMessage(plaintext);
     } catch (Exception e) {
@@ -124,21 +131,31 @@ private void receiveMessage(SecureChat chat, CardModel senderCard, String messag
 Receiver decrypts the incoming message using the conversation he has just created:
 
 ```java
-private void sendMessage(SecureChat chat, CardModel receiverCard, String message) {
+private void sendMessage(SecureChat chat, CardModel receiverCard,
+        String message) {
     // get an active session by recipient's card id
     SecureSession session = chat.activeSession(receiverCard.getId());
-
+    
     if (session == null) {
-        // start new session with recipient if session wasn't initialized yet
-        session = chat.startNewSession(receiverCard, null);
+        // start new session with recipient if session wasn't initialized
+        // yet
+        try {
+            session = chat.startNewSession(receiverCard, null);
+        } catch (CardValidationException e) {
+            // error handling
+            return;
+        } catch (SecureChatException e) {
+            // error handling
+            return;
+        }
     }
-
+    
     sendMessage(session, receiverCard, message);
 }
 
 private void sendMessage(SecureSession session, CardModel receiverCard,
-    String message) {
-        String ciphertext = null;
+        String message) {
+    String ciphertext = null;
     try {
         // encrypt the message using previously initialized session
         ciphertext = session.encrypt(message);
@@ -146,10 +163,10 @@ private void sendMessage(SecureSession session, CardModel receiverCard,
         // error handling
         return;
     }
-
+    
     // send a cipher message to recipient using your messaging service
     sendMessageToRecipient(receiverCard.getSnapshotModel().getIdentity(),
-        ciphertext);
+            ciphertext);
 }
 ```
 
@@ -169,7 +186,7 @@ For each session you can use new OTC and delete it after session is finished.
 
 To create user's Identity Virgil Cards, use the following code:
 
-```cs
+```java
 // generate a new Virgil Key for Alice
 VirgilKey aliceKey = virgil.getKeys().generate();
 
@@ -177,15 +194,15 @@ VirgilKey aliceKey = virgil.getKeys().generate();
 aliceKey.save("[KEY_NAME]", "[KEY_PASSWORD]");
 
 // create Alice's Virgil Card
-VirgilCard aliceCard = virgil.getCards().create(aliceIdentity, aliceKey,
-    USERNAME_IDENTITY_TYPE);
+VirgilCard aliceCard = virgil.getCards().create("[ALICE_IDENTITY]",
+        aliceKey, "[USERNAME_IDENTITY_TYPE]");
 
 // export a Virgil Card to string
 String exportedCard = aliceCard.export();
 ```
 after Virgil Card creation it is necessary to sign and publish it with Application Private Virgil Key at the server side.
 
-```cs
+```java
 // import Alice's Virgil Card from string
 VirgilCard importedCard = virgil.getCards().importCard(exportedCard);
 

@@ -28,12 +28,12 @@ You can easily add SDK dependency to your project, just follow the examples belo
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>crypto</artifactId>
-        <version>4.3.3</version>
+        <version>4.5.0</version>
     </dependency>
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>sdk</artifactId>
-        <version>4.3.3</version>
+        <version>4.5.0</version>
     </dependency>
 </dependencies>
 ```
@@ -45,14 +45,15 @@ To initialize the **Virgil SDK** on a server, you need to sign up for a develope
 2. The application **credentials** (the App ID, the App Key in a file, the App Key password).
 
 ```java
-Crypto crypto = new VirgilCrypto();
-VirgilClientContext ctx = new VirgilClientContext(APP_TOKEN);
-VirgilClient client = new VirgilClient(ctx);
-RequestSigner requestSigner = new RequestSigner(crypto);
+AppCredentials credentials = new AppCredentials();
+credentials.setAppId("[APPLICATION_ID]");
+credentials.setAppKey(VirgilBuffer.from("[APP_PRIVATE_KEY]"));
+credentials.setAppKeyPassword("[APP_PRIVATE_KEY_PASSWORD]");
 
-// Import application private key
-PrivateKey appKey = crypto.importPrivateKey(APP_PRIVATE_KEY.getBytes(),
-    APP_PRIVATE_KEY_PASSWORD);
+VirgilApiContext ctx = new VirgilApiContext("[ACCESS_TOKEN]");
+ctx.setCredentials(credentials);
+
+VirgilApi virgil = new VirgilApiImpl(ctx);
 ```
 
 
